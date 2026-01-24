@@ -1,0 +1,301 @@
+.simulation-player {
+  display: flex;
+  height: 100vh;
+  background: var(--bg-secondary);
+}
+
+.player-sidebar {
+  width: 300px;
+  background: white;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sidebar-header h3 {
+  font-size: 1rem;
+  margin: 0;
+  flex: 1;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.btn-close:hover {
+  background: var(--bg-secondary);
+}
+
+.stages-list {
+  padding: 1rem;
+}
+
+.stage-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.stage-item:hover {
+  background: var(--bg-secondary);
+}
+
+.stage-item.active {
+  background: #eff6ff;
+  border: 2px solid var(--primary);
+}
+
+.stage-item.completed .stage-number {
+  background: var(--success);
+  color: white;
+}
+
+.stage-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.stage-item.active .stage-number {
+  background: var(--primary);
+  color: white;
+}
+
+.stage-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.player-main {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-header {
+  background: white;
+  padding: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.stage-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.stage-progress {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.blocks-container {
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+.player-controls {
+  background: white;
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  position: sticky;
+  bottom: 0;
+}
+
+.controls-left,
+.controls-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: var(--border);
+}
+
+.btn-outline {
+  background: white;
+  border: 2px solid var(--border);
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+}
+
+.completion-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.completion-content {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 600px;
+  text-align: center;
+}
+
+.completion-badge {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--success);
+  color: white;
+  font-size: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+}
+
+.completion-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.completion-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.completion-company {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.completion-certificate {
+  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  border: 3px solid #d4af37;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.certificate-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #8b4513;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.certificate-body p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.certificate-body h3 {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  color: var(--text);
+}
+
+.certificate-body h4 {
+  font-size: 1.25rem;
+  margin: 1rem 0;
+  color: var(--primary);
+}
+
+.certificate-date {
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+.completion-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+}

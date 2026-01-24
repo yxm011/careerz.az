@@ -1,0 +1,11 @@
+.block-wrapper {
+  margin-bottom: 2rem;
+}
+
+.block-error {
+  padding: 1rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 8px;
+  font-weight: 500;
+}
