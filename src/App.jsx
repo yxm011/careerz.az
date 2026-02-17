@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { initializeStorage } from './services/storage';
-import DemoModeSwitcher from './components/DemoModeSwitcher';
 
 import Landing from './pages/Landing';
+import ForCompanies from './pages/ForCompanies';
 import StudentLayout from './layouts/StudentLayout';
 import CompanyLayout from './layouts/CompanyLayout';
 import AdminLayout from './layouts/AdminLayout';
@@ -11,6 +11,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Explore from './pages/student/Explore';
 import SimulationPlayer from './pages/student/SimulationPlayer';
 import StudentDashboard from './pages/student/StudentDashboard';
+import Test from './pages/Test';
 
 import CompanyHome from './pages/company/CompanyHome';
 import CompanySimulations from './pages/company/CompanySimulations';
@@ -26,14 +27,22 @@ import './App.css';
 
 function App() {
   useEffect(() => {
-    initializeStorage();
+    try {
+      console.log('Initializing storage...');
+      initializeStorage();
+      console.log('Storage initialized successfully');
+    } catch (error) {
+      console.error('Error initializing storage:', error);
+      alert('Error initializing app: ' + error.message);
+    }
   }, []);
 
   return (
     <Router>
-      <DemoModeSwitcher />
       <Routes>
+        <Route path="/test" element={<Test />} />
         <Route path="/" element={<Landing />} />
+        <Route path="/for-companies" element={<ForCompanies />} />
         
         <Route path="/student" element={<StudentLayout />}>
           <Route path="dashboard" element={<StudentDashboard />} />

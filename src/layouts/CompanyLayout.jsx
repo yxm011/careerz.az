@@ -1,21 +1,16 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import './Layout.css';
 
 function CompanyLayout() {
   return (
     <div className="layout">
-      <header className="header">
-        <div className="header-content">
-          <Link to="/" className="logo">Careerz.az</Link>
-          <nav className="nav">
-            <Link to="/company">Dashboard</Link>
-            <Link to="/company/simulations">Simulations</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
       <main className="main-content">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -1,45 +1,32 @@
 .explore {
   min-height: 100vh;
   background: var(--bg-secondary);
-}
-
-.explore-header {
-  background: white;
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.explore-header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
 }
 
 .explore-content {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2rem;
+  flex: 1;
 }
 
 .explore-hero {
   text-align: center;
-  padding: 3rem 0;
+  padding: 2rem 0 3rem;
 }
 
 .explore-hero h1 {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   margin-bottom: 1rem;
+  color: #1f2937;
+  font-weight: 800;
 }
 
 .explore-hero p {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: #6b7280;
 }
 
 .explore-filters {
@@ -50,23 +37,27 @@
 }
 
 .filter-btn {
-  padding: 0.5rem 1.5rem;
-  border: 2px solid var(--border);
+  padding: 0.625rem 1.75rem;
+  border: 2px solid #e5e7eb;
   background: white;
   border-radius: 24px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
+  cursor: pointer;
+  font-size: 0.95rem;
 }
 
 .filter-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: translateY(-1px);
 }
 
 .filter-btn.active {
-  background: var(--primary);
+  background: #2563eb;
   color: white;
-  border-color: var(--primary);
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .simulations-grid {
@@ -77,17 +68,19 @@
 
 .simulation-card {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
+  border: 1px solid #f3f4f6;
 }
 
 .simulation-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-color: #e5e7eb;
 }
 
 .card-header {
@@ -191,5 +184,24 @@
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: var(--text-secondary);
+  color: #6b7280;
+  font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+  .explore-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .explore-hero p {
+    font-size: 1rem;
+  }
+  
+  .explore-filters {
+    flex-wrap: wrap;
+  }
+  
+  .simulations-grid {
+    grid-template-columns: 1fr;
+  }
 }

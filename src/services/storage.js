@@ -7,6 +7,14 @@ const STORAGE_KEYS = {
   INITIALIZED: 'careerz_initialized'
 };
 
+export const resetStorage = () => {
+  localStorage.removeItem(STORAGE_KEYS.SIMULATIONS);
+  localStorage.removeItem(STORAGE_KEYS.SUBMISSIONS);
+  localStorage.removeItem(STORAGE_KEYS.PROGRESS);
+  localStorage.removeItem(STORAGE_KEYS.INITIALIZED);
+  initializeStorage();
+};
+
 export const initializeStorage = () => {
   if (localStorage.getItem(STORAGE_KEYS.INITIALIZED)) {
     return;

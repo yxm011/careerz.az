@@ -11,6 +11,10 @@ import TrueFalseBlock from './blocks/TrueFalseBlock';
 import DropdownBlock from './blocks/DropdownBlock';
 import MatchingBlock from './blocks/MatchingBlock';
 import CodeEditorBlock from './blocks/CodeEditorBlock';
+import TeamOverviewBlock from './blocks/TeamOverviewBlock';
+import ScenarioBriefBlock from './blocks/ScenarioBriefBlock';
+import RoleOverviewBlock from './blocks/RoleOverviewBlock';
+import TransitionBlock from './blocks/TransitionBlock';
 import './BlockRenderer.css';
 
 function BlockRenderer({ block, value, onChange }) {
@@ -42,6 +46,14 @@ function BlockRenderer({ block, value, onChange }) {
         return <MatchingBlock data={block.data} value={value} onChange={onChange} />;
       case 'codeEditor':
         return <CodeEditorBlock data={block.data} value={value} onChange={onChange} />;
+      case 'teamOverview':
+        return <TeamOverviewBlock data={block.data} />;
+      case 'scenarioBrief':
+        return <ScenarioBriefBlock data={block.data} />;
+      case 'roleOverview':
+        return <RoleOverviewBlock data={block.data} />;
+      case 'transition':
+        return <TransitionBlock data={block.data} />;
       default:
         return <div className="block-error">Unknown block type: {block.type}</div>;
     }

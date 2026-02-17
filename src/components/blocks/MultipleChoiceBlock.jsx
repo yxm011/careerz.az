@@ -27,7 +27,7 @@ function MultipleChoiceBlock({ data, value, onChange }) {
       <div className="mcq-options">
         {data.options.map((option, idx) => (
           <div
-            key={idx}
+            key={option.id || idx}
             className={`mcq-option ${selectedAnswers.includes(idx) ? 'selected' : ''}`}
             onClick={() => handleSelect(idx)}
           >
@@ -46,7 +46,7 @@ function MultipleChoiceBlock({ data, value, onChange }) {
                 />
               )}
             </div>
-            <div className="mcq-label">{option}</div>
+            <div className="mcq-label">{typeof option === 'string' ? option : option.text}</div>
           </div>
         ))}
       </div>

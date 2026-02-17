@@ -1,22 +1,16 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import './Layout.css';
 
 function AdminLayout() {
   return (
     <div className="layout">
-      <header className="header">
-        <div className="header-content">
-          <Link to="/" className="logo">Careerz.az</Link>
-          <nav className="nav">
-            <Link to="/admin">Dashboard</Link>
-            <Link to="/admin/templates">Templates</Link>
-            <Link to="/admin/review">Review Queue</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
       <main className="main-content">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }

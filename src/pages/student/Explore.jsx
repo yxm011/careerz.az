@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSimulations, getCompanyById } from '../../services/storage';
+import { useTranslation } from '../../context/LanguageContext';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import './Explore.css';
 
 function Explore() {
+  const { t } = useTranslation();
   const [simulations, setSimulations] = useState([]);
   const [filter, setFilter] = useState('all');
 
@@ -18,20 +22,12 @@ function Explore() {
 
   return (
     <div className="explore">
-      <div className="explore-header">
-        <div className="explore-header-content">
-          <Link to="/" className="logo">Careerz.az</Link>
-          <nav className="nav">
-            <Link to="/explore">Explore</Link>
-            <Link to="/student/dashboard">My Dashboard</Link>
-          </nav>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="explore-content">
         <div className="explore-hero">
-          <h1>Explore Job Simulations</h1>
-          <p>Gain real-world experience from leading companies</p>
+          <h1>{t('explore.title')}</h1>
+          <p>{t('explore.subtitle')}</p>
         </div>
 
         <div className="explore-filters">
@@ -39,25 +35,25 @@ function Explore() {
             className={filter === 'all' ? 'filter-btn active' : 'filter-btn'}
             onClick={() => setFilter('all')}
           >
-            All
+            {t('explore.filters.all')}
           </button>
           <button 
             className={filter === 'Beginner' ? 'filter-btn active' : 'filter-btn'}
             onClick={() => setFilter('Beginner')}
           >
-            Beginner
+            {t('explore.filters.beginner')}
           </button>
           <button 
             className={filter === 'Intermediate' ? 'filter-btn active' : 'filter-btn'}
             onClick={() => setFilter('Intermediate')}
           >
-            Intermediate
+            {t('explore.filters.intermediate')}
           </button>
           <button 
             className={filter === 'Advanced' ? 'filter-btn active' : 'filter-btn'}
             onClick={() => setFilter('Advanced')}
           >
-            Advanced
+            {t('explore.filters.advanced')}
           </button>
         </div>
 
@@ -67,22 +63,22 @@ function Explore() {
             return (
               <div key={sim.id} className="simulation-card">
                 <div className="card-header">
-                  <span className="company-name">{company?.name || 'Unknown Company'}</span>
-                  <span className={`difficulty-badge ${sim.difficulty.toLowerCase()}`}>
-                    {sim.difficulty}
+                  <span className="company-name">{company?.name || t('explore.unknownCompany')}</span>
+                  <span className={`difficulty-badge ${sim.difficulty?.toLowerCase() || 'beginner'}`}>
+                    {sim.difficulty || 'Beginner'}
                   </span>
                 </div>
                 <h3>{sim.title}</h3>
                 <p className="description">{sim.description}</p>
                 <div className="card-tags">
-                  {sim.tags.map((tag, idx) => (
+                  {(sim.tags || []).map((tag, idx) => (
                     <span key={idx} className="tag">{tag}</span>
                   ))}
                 </div>
                 <div className="card-footer">
                   <span className="duration">⏱ {sim.duration}</span>
                   <Link to={`/sim/${sim.id}`} className="btn btn-primary">
-                    Start Simulation
+                    {t('explore.startBtn')}
                   </Link>
                 </div>
               </div>
@@ -92,10 +88,12 @@ function Explore() {
 
         {filteredSimulations.length === 0 && (
           <div className="empty-state">
-            <p>No simulations found matching your criteria.</p>
+            <p>{t('explore.emptyState')}</p>
           </div>
         )}
       </div>
+      
+      <Footer />
     </div>
   );
 }

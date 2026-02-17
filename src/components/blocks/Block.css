@@ -726,3 +726,430 @@
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
 }
+
+/* Team Overview Block */
+.team-overview-block {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+
+.team-header {
+  margin-bottom: 3rem;
+}
+
+.team-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.75rem;
+}
+
+.team-subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.team-section {
+  margin-top: 2rem;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 2rem;
+}
+
+.team-member-section {
+  margin-bottom: 2.5rem;
+}
+
+.subsection-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1.5rem;
+}
+
+.team-member-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.team-member-card.user-card {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.member-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.member-info {
+  grid-column: 2;
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.member-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.member-badge {
+  background: #1f2937;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.member-badge-small {
+  background: #374151;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.member-role {
+  font-size: 1rem;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+.member-description {
+  grid-column: 2;
+  margin-top: 0.75rem;
+}
+
+.member-description p {
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.team-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Scenario Brief Block */
+.scenario-brief-block {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+
+.scenario-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.scenario-intro {
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.scenario-intro p {
+  color: #374151;
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.scenario-intro strong {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.scenario-dialogues {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.dialogue-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.dialogue-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  border: 3px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dialogue-content {
+  flex: 1;
+}
+
+.dialogue-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.dialogue-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.dialogue-role {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.dialogue-bubble {
+  background: #1f2937;
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  border-top-left-radius: 4px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dialogue-bubble p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.scenario-conclusion {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  border-radius: 8px;
+}
+
+.scenario-conclusion p {
+  color: #166534;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Role Overview Block */
+.role-overview-block {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+
+.role-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.role-description {
+  font-size: 1.125rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.role-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.role-section {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #e5e7eb;
+}
+
+.role-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-icon {
+  font-size: 2rem;
+}
+
+.role-section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.role-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.role-list li {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.role-list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #2563eb;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.role-list li strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Transition Block */
+.transition-block {
+  background: white;
+  border-radius: 16px;
+  padding: 4rem 2.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.transition-illustration {
+  margin-bottom: 2rem;
+}
+
+.illustration-content {
+  font-size: 6rem;
+}
+
+.running-illustration {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  animation: runAnimation 2s ease-in-out infinite;
+}
+
+@keyframes runAnimation {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(20px);
+  }
+}
+
+.runner {
+  font-size: 5rem;
+}
+
+.finish-flag {
+  font-size: 4rem;
+}
+
+.illustration-emoji {
+  display: inline-block;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.transition-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.transition-subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  max-width: 600px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-member-card {
+    grid-template-columns: 1fr;
+  }
+  
+  .member-avatar {
+    margin: 0 auto;
+  }
+  
+  .member-info,
+  .member-description {
+    grid-column: 1;
+  }
+  
+  .role-sections {
+    grid-template-columns: 1fr;
+  }
+  
+  .dialogue-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .dialogue-bubble {
+    border-radius: 16px;
+  }
+}

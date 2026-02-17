@@ -11,13 +11,17 @@ function SimulationPlayer() {
   const navigate = useNavigate();
   const [simulation, setSimulation] = useState(null);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [completed, setCompleted] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    console.log('SimulationPlayer loading, id:', id);
     const sim = getSimulationById(id);
+    console.log('Found simulation:', sim);
     if (!sim) {
+      console.log('Simulation not found, redirecting to /explore');
       navigate('/explore');
       return;
     }
@@ -26,6 +30,7 @@ function SimulationPlayer() {
     const progress = getStudentProgress(id, STUDENT_ID);
     if (progress) {
       setCurrentStageIndex(progress.currentStageIndex || 0);
+      setCurrentStepIndex(progress.currentStepIndex || 0);
       setAnswers(progress.answers || {});
       setCompleted(progress.completed || false);
     }
@@ -42,18 +47,55 @@ function SimulationPlayer() {
     setSaving(true);
     saveProgress(id, STUDENT_ID, {
       currentStageIndex,
+      currentStepIndex,
       answers,
       completed: false
     });
     setTimeout(() => setSaving(false), 500);
   };
 
+  const handleNextStep = () => {
+    const currentStage = simulation.stages[currentStageIndex];
+    const steps = currentStage.steps || [{ blocks: currentStage.blocks }];
+    
+    if (currentStepIndex < steps.length - 1) {
+      const newStepIndex = currentStepIndex + 1;
+      setCurrentStepIndex(newStepIndex);
+      saveProgress(id, STUDENT_ID, {
+        currentStageIndex,
+        currentStepIndex: newStepIndex,
+        answers,
+        completed: false
+      });
+      window.scrollTo(0, 0);
+    } else {
+      handleNextStage();
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStepIndex > 0) {
+      const newStepIndex = currentStepIndex - 1;
+      setCurrentStepIndex(newStepIndex);
+      window.scrollTo(0, 0);
+    } else if (currentStageIndex > 0) {
+      const prevStageIndex = currentStageIndex - 1;
+      const prevStage = simulation.stages[prevStageIndex];
+      const prevSteps = prevStage.steps || [{ blocks: prevStage.blocks }];
+      setCurrentStageIndex(prevStageIndex);
+      setCurrentStepIndex(prevSteps.length - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
   const handleNextStage = () => {
     if (currentStageIndex < simulation.stages.length - 1) {
       const newIndex = currentStageIndex + 1;
       setCurrentStageIndex(newIndex);
+      setCurrentStepIndex(0);
       saveProgress(id, STUDENT_ID, {
         currentStageIndex: newIndex,
+        currentStepIndex: 0,
         answers,
         completed: false
       });
@@ -61,13 +103,6 @@ function SimulationPlayer() {
     }
   };
 
-  const handlePreviousStage = () => {
-    if (currentStageIndex > 0) {
-      const newIndex = currentStageIndex - 1;
-      setCurrentStageIndex(newIndex);
-      window.scrollTo(0, 0);
-    }
-  };
 
   const handleSubmit = () => {
     if (window.confirm('Are you sure you want to submit this simulation? You cannot make changes after submission.')) {
@@ -116,7 +151,11 @@ function SimulationPlayer() {
   }
 
   const currentStage = simulation.stages[currentStageIndex];
+  const steps = currentStage.steps || [{ blocks: currentStage.blocks }];
+  const currentStep = steps[currentStepIndex];
+  const isLastStep = currentStepIndex === steps.length - 1;
   const isLastStage = currentStageIndex === simulation.stages.length - 1;
+  const isFirstStep = currentStepIndex === 0 && currentStageIndex === 0;
 
   return (
     <div className="simulation-player">
@@ -142,13 +181,20 @@ function SimulationPlayer() {
       <div className="player-main">
         <div className="stage-header">
           <h1>{currentStage.title}</h1>
-          <div className="stage-progress">
-            Stage {currentStageIndex + 1} of {simulation.stages.length}
+          <div className="step-indicators">
+            {steps.map((_, index) => (
+              <span
+                key={index}
+                className={`step-indicator ${index === currentStepIndex ? 'active' : ''} ${index < currentStepIndex ? 'completed' : ''}`}
+              >
+                {index + 1}
+              </span>
+            ))}
           </div>
         </div>
 
         <div className="blocks-container">
-          {currentStage.blocks.map(block => (
+          {(currentStep?.blocks || []).map(block => (
             <BlockRenderer
               key={block.id}
               block={block}
@@ -160,9 +206,9 @@ function SimulationPlayer() {
 
         <div className="player-controls">
           <div className="controls-left">
-            {currentStageIndex > 0 && (
-              <button onClick={handlePreviousStage} className="btn btn-secondary">
-                ← Previous Stage
+            {!isFirstStep && (
+              <button onClick={handlePreviousStep} className="btn btn-secondary">
+                Back
               </button>
             )}
           </div>
@@ -170,9 +216,9 @@ function SimulationPlayer() {
             <button onClick={handleSaveProgress} className="btn btn-outline" disabled={saving}>
               {saving ? 'Saved!' : 'Save Progress'}
             </button>
-            {!isLastStage ? (
-              <button onClick={handleNextStage} className="btn btn-primary">
-                Next Stage →
+            {!(isLastStep && isLastStage) ? (
+              <button onClick={handleNextStep} className="btn btn-primary">
+                Next
               </button>
             ) : (
               <button onClick={handleSubmit} className="btn btn-success">
