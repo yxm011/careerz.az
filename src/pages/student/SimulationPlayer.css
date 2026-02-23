@@ -1,3 +1,65 @@
+/* Task Completion Overlay */
+.task-complete-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.task-complete-message {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem 4rem;
+  text-align: center;
+  animation: slideUp 0.4s ease-out;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.task-complete-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.task-complete-message h2 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.task-complete-message p {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
 .simulation-player {
   display: flex;
   height: 100vh;
@@ -99,9 +161,9 @@
 
 .player-main {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .stage-header {
@@ -158,6 +220,7 @@
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+  overflow-y: auto;
 }
 
 .player-controls {
@@ -166,8 +229,7 @@
   padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;
 }
 
 .controls-left,
@@ -240,23 +302,17 @@
 
 .completion-content {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 3rem;
-  max-width: 600px;
+  max-width: 700px;
   text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .completion-badge {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--success);
-  color: white;
-  font-size: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 2rem;
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  animation: bounce 1s ease-in-out;
 }
 
 .completion-content h1 {
@@ -275,45 +331,131 @@
 .completion-company {
   color: var(--text-secondary);
   margin-bottom: 2rem;
+  font-size: 1.1rem;
 }
 
+/* Certificate Section */
 .completion-certificate {
-  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-  border: 3px solid #d4af37;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 3px solid #f59e0b;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin: 2rem 0;
+}
+
+.certificate-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.completion-certificate h3 {
+  font-size: 1.8rem;
+  color: #92400e;
+  margin-bottom: 1rem;
+}
+
+.certificate-description {
+  color: #78350f;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.certificate-preview {
+  background: white;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-header {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 2px solid #f59e0b;
+  padding-bottom: 1rem;
+}
+
+.certificate-body p {
+  margin: 0.5rem 0;
+  color: #78350f;
+  font-size: 0.95rem;
+}
+
+.certificate-body h4 {
+  font-size: 1.4rem;
+  margin: 0.75rem 0;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.certificate-company {
+  font-style: italic;
+  color: #78350f;
+  font-size: 1rem;
+}
+
+.certificate-date {
+  font-style: italic;
+  margin-top: 1.5rem;
+  color: #78350f;
+  font-size: 0.9rem;
+}
+
+/* Share Section */
+.completion-share {
+  background: #f3f4f6;
   border-radius: 12px;
   padding: 2rem;
   margin: 2rem 0;
 }
 
-.certificate-header {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #8b4513;
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.certificate-body p {
-  margin: 0.5rem 0;
-  color: var(--text-secondary);
-}
-
-.certificate-body h3 {
+.completion-share h3 {
   font-size: 1.5rem;
-  margin: 1rem 0;
-  color: var(--text);
+  color: #1f2937;
+  margin-bottom: 0.5rem;
 }
 
-.certificate-body h4 {
-  font-size: 1.25rem;
-  margin: 1rem 0;
-  color: var(--primary);
+.completion-share p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
 }
 
-.certificate-date {
-  font-style: italic;
-  margin-top: 1rem;
+.share-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-linkedin {
+  background: #0077b5;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-linkedin:hover {
+  background: #005885;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3);
+}
+
+.btn-linkedin svg {
+  width: 20px;
+  height: 20px;
 }
 
 .completion-actions {
@@ -321,6 +463,12 @@
   gap: 1rem;
   justify-content: center;
   margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn-lg {
+  padding: 0.875rem 2rem;
+  font-size: 1.1rem;
 }
 
 .loading {

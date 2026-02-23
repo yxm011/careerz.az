@@ -19,11 +19,11 @@ function ForCompanies() {
               {t('forCompanies.heroDescription')}
             </p>
             <div className="hero-cta">
-              <Link to="/company/register" className="btn btn-primary btn-lg">
-                {t('forCompanies.getStartedBtn')}
+              <Link to="/company/simulations/new" className="btn btn-primary btn-lg">
+                Create Sample Simulation
               </Link>
-              <Link to="/contact" className="btn btn-outline btn-lg">
-                {t('forCompanies.scheduleDemoBtn')}
+              <Link to="/company" className="btn btn-outline btn-lg">
+                Company Portal
               </Link>
             </div>
           </div>
@@ -96,6 +96,43 @@ function ForCompanies() {
                 <p>{t('forCompanies.howItWorks.step4.description')}</p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="create-simulation-cta">
+          <div className="cta-box">
+            <div className="cta-icon">🚀</div>
+            <h2>Ready to Create Your First Simulation?</h2>
+            <p>Use our intuitive builder to design realistic job scenarios with multiple block types, assessments, and interactive elements. No technical skills required.</p>
+            <div className="cta-features">
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>Team Overviews</span>
+              </div>
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>Scenario Briefs</span>
+              </div>
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>Multiple Choice Questions</span>
+              </div>
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>Text Responses</span>
+              </div>
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>File Uploads</span>
+              </div>
+              <div className="cta-feature">
+                <span className="feature-icon">✓</span>
+                <span>Rich Text Content</span>
+              </div>
+            </div>
+            <Link to="/company/simulations/new" className="btn btn-primary btn-lg">
+              Start Building Now →
+            </Link>
           </div>
         </section>
 

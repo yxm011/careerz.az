@@ -4,6 +4,8 @@ import { initializeStorage } from './services/storage';
 
 import Landing from './pages/Landing';
 import ForCompanies from './pages/ForCompanies';
+import Blog from './pages/Blog';
+import ForEducators from './pages/ForEducators';
 import StudentLayout from './layouts/StudentLayout';
 import CompanyLayout from './layouts/CompanyLayout';
 import AdminLayout from './layouts/AdminLayout';
@@ -43,6 +45,8 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/" element={<Landing />} />
         <Route path="/for-companies" element={<ForCompanies />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/for-educators" element={<ForEducators />} />
         
         <Route path="/student" element={<StudentLayout />}>
           <Route path="dashboard" element={<StudentDashboard />} />

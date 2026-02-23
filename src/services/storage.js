@@ -78,6 +78,43 @@ export const createSimulationFromTemplate = (templateId, companyId) => {
   return newSimulation;
 };
 
+export const createBlankSimulation = (companyId) => {
+  const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
+  
+  const newSimulation = {
+    id: `sim-${Date.now()}`,
+    companyId,
+    title: 'New Simulation',
+    description: 'Add a description for your simulation',
+    tags: [],
+    difficulty: 'Beginner',
+    duration: '30-45 mins',
+    status: 'draft',
+    createdAt: new Date().toISOString(),
+    version: 1,
+    stages: [
+      {
+        id: `stage-${Date.now()}`,
+        title: 'Introduction',
+        blocks: [
+          {
+            id: `block-${Date.now()}`,
+            type: 'richText',
+            data: {
+              content: '<h2>Welcome to Your New Simulation</h2><p>Start building your simulation by adding blocks using the buttons on the right. You can add:</p><ul><li>Rich text content</li><li>Multiple choice questions</li><li>Text inputs</li><li>File uploads</li><li>And more!</li></ul><p>Click the + buttons to add new blocks and stages.</p>'
+            }
+          }
+        ]
+      }
+    ]
+  };
+  
+  simulations.push(newSimulation);
+  localStorage.setItem(STORAGE_KEYS.SIMULATIONS, JSON.stringify(simulations));
+  
+  return newSimulation;
+};
+
 export const updateSimulation = (simulation) => {
   const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
   const index = simulations.findIndex(sim => sim.id === simulation.id);
