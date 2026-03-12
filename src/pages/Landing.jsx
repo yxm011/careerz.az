@@ -79,7 +79,7 @@ function Landing() {
           </div>
           <div className="steps-grid">
             <div className="step-card">
-              <div className="step-icon">�</div>
+              <div className="step-icon">🎯</div>
               <div className="step-number">01</div>
               <h3>{t('landing.howItWorks.step1.title')}</h3>
               <p>{t('landing.howItWorks.step1.description')}</p>

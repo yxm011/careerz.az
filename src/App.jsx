@@ -17,6 +17,9 @@ import Test from './pages/Test';
 
 import CompanyHome from './pages/company/CompanyHome';
 import CompanySimulations from './pages/company/CompanySimulations';
+import CompanySubmissions from './pages/company/CompanySubmissions';
+import CertificateReview from './pages/company/CertificateReview';
+import CompanySubscription from './pages/company/CompanySubscription';
 import TemplateSelect from './pages/company/TemplateSelect';
 import SimulationBuilder from './pages/company/SimulationBuilder';
 import SimulationAnalytics from './pages/company/SimulationAnalytics';
@@ -61,6 +64,9 @@ function App() {
           <Route path="simulations/new" element={<TemplateSelect />} />
           <Route path="simulations/:id/edit" element={<SimulationBuilder />} />
           <Route path="simulations/:id/analytics" element={<SimulationAnalytics />} />
+          <Route path="submissions" element={<CompanySubmissions />} />
+          <Route path="certificates/:requestId" element={<CertificateReview />} />
+          <Route path="subscription" element={<CompanySubscription />} />
         </Route>
         
         <Route path="/admin" element={<AdminLayout />}>

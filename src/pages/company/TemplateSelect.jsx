@@ -1,22 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSimulations, createSimulationFromTemplate, createBlankSimulation } from '../../services/storage';
+import { createSimulationFromFixedTemplate, createBlankSimulation } from '../../services/storage';
+import { fixedTemplates } from '../../data/fixedTemplates';
 import './Company.css';
 
 const COMPANY_ID = 'company-1';
 
 function TemplateSelect() {
   const navigate = useNavigate();
-  const [templates, setTemplates] = useState([]);
-
-  useEffect(() => {
-    const temps = getSimulations({ status: 'template' });
-    setTemplates(temps);
-  }, []);
+  const templates = fixedTemplates;
 
   const handleSelectTemplate = (templateId) => {
-    const newSim = createSimulationFromTemplate(templateId, COMPANY_ID);
-    navigate(`/company/simulations/${newSim.id}/edit`);
+    try {
+      const newSim = createSimulationFromFixedTemplate(templateId, COMPANY_ID);
+      navigate(`/company/simulations/${newSim.id}/edit`);
+    } catch (error) {
+      console.error('Error creating simulation from template:', error);
+      alert('Error creating simulation: ' + error.message);
+    }
   };
 
   const handleCreateBlank = () => {
@@ -62,7 +63,7 @@ function TemplateSelect() {
         {templates.map(template => (
           <div key={template.id} className="template-card">
             <div className="template-header">
-              <h3>{template.title}</h3>
+              <h3>{template.level} Level</h3>
               <span className={`difficulty-badge ${template.difficulty.toLowerCase()}`}>
                 {template.difficulty}
               </span>
@@ -70,18 +71,21 @@ function TemplateSelect() {
             <p className="template-description">{template.description}</p>
             <div className="template-meta">
               <span>⏱ {template.duration}</span>
-              <span>📝 {template.stages.length} stages</span>
+              <span>📝 {template.taskCount} tasks</span>
             </div>
-            <div className="template-tags">
-              {template.tags.map((tag, idx) => (
-                <span key={idx} className="tag">{tag}</span>
-              ))}
+            <div className="template-features">
+              <h4>Features:</h4>
+              <ul>
+                {template.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
             </div>
             <button 
               onClick={() => handleSelectTemplate(template.id)} 
               className="btn btn-primary btn-block"
             >
-              Use This Template
+              Use {template.level} Template
             </button>
           </div>
         ))}

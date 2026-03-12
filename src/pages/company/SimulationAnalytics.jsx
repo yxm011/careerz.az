@@ -1,161 +1,212 @@
-import { useParams } from 'react-router-dom';
-import { getSimulationById } from '../../services/storage';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getSimulationById, getSubmissionsByCompany } from '../../services/storage';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
 import './Company.css';
-import './Analytics.css';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+const COMPANY_ID = 'company-1';
 
 function SimulationAnalytics() {
   const { id } = useParams();
-  const simulation = getSimulationById(id);
+  const navigate = useNavigate();
+  const [simulation, setSimulation] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!simulation) {
-    return <div className="loading">Simulation not found</div>;
+  useEffect(() => {
+    loadData();
+  }, [id]);
+
+  const loadData = () => {
+    setLoading(true);
+    const sim = getSimulationById(id);
+    
+    if (!sim || sim.companyId !== COMPANY_ID) {
+      navigate('/company/simulations');
+      return;
+    }
+    
+    setSimulation(sim);
+    
+    const allSubmissions = getSubmissionsByCompany(COMPANY_ID);
+    const simSubmissions = allSubmissions.filter(s => s.simId === id);
+    setSubmissions(simSubmissions);
+    
+    setLoading(false);
+  };
+
+  if (loading || !simulation) {
+    return <div className="loading">Loading analytics...</div>;
   }
 
-  const mockEnrollments = simulation.status === 'published' ? Math.floor(Math.random() * 150) + 50 : 0;
-  const mockCompletions = simulation.status === 'published' ? Math.floor(mockEnrollments * (0.6 + Math.random() * 0.3)) : 0;
-  const completionRate = mockEnrollments > 0 ? Math.round((mockCompletions / mockEnrollments) * 100) : 0;
-  const avgTime = simulation.status === 'published' ? `${Math.floor(Math.random() * 2) + 2}h ${Math.floor(Math.random() * 60)}m` : 'N/A';
+  const totalSubmissions = submissions.length;
+  const completedSubmissions = submissions.filter(s => s.status === 'submitted').length;
+  const completionRate = totalSubmissions > 0 ? Math.round((completedSubmissions / totalSubmissions) * 100) : 0;
+  const averageTimeMinutes = 42;
+  const topSkills = ['Data Analysis', 'Problem Solving', 'Communication'];
 
-  const stageDropoff = simulation.stages.map((stage, idx) => {
-    const remaining = mockEnrollments * Math.pow(0.85, idx);
-    return {
-      stage: stage.title,
-      students: Math.floor(remaining),
-      percentage: Math.round((remaining / mockEnrollments) * 100)
-    };
-  });
+  const completionTrendData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Completions',
+        data: [12, 19, 15, 25, 22, completedSubmissions || 5],
+        borderColor: '#4f46e5',
+        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+        fill: true,
+        tension: 0.4
+      }
+    ]
+  };
 
-  const mockCandidates = simulation.status === 'published' ? [
-    { name: 'Aysel Mammadova', email: 'aysel.m@example.az', score: 95, completedAt: '2026-01-20', status: 'Opted In' },
-    { name: 'Elvin Hasanov', email: 'elvin.h@example.az', score: 88, completedAt: '2026-01-19', status: 'Opted In' },
-    { name: 'Leyla Aliyeva', email: 'leyla.a@example.az', score: 92, completedAt: '2026-01-18', status: 'Opted In' },
-    { name: 'Rashad Ismayilov', email: 'rashad.i@example.az', score: 85, completedAt: '2026-01-17', status: 'Not Opted In' },
-    { name: 'Nigar Huseynova', email: 'nigar.h@example.az', score: 90, completedAt: '2026-01-16', status: 'Opted In' }
-  ] : [];
+  const scoreDistributionData = {
+    labels: ['90-100%', '80-89%', '70-79%', '60-69%', '<60%'],
+    datasets: [
+      {
+        label: 'Number of Students',
+        data: [15, 25, 20, 10, 5],
+        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f97316', '#ef4444']
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      }
+    }
+  };
 
   return (
-    <div className="company-page">
+    <div className="company-page analytics-page">
       <div className="page-header">
         <div>
           <h1>Analytics: {simulation.title}</h1>
-          <p className="page-subtitle">View performance metrics and student submissions</p>
+          <p className="page-subtitle">Track performance and candidate metrics</p>
+        </div>
+        <div className="header-actions">
+          <button className="btn btn-outline" onClick={() => navigate('/company/simulations')}>
+            ← Back
+          </button>
+          <button className="btn btn-primary">
+            Export Data (CSV)
+          </button>
         </div>
       </div>
 
-      {simulation.status === 'draft' && (
-        <div className="info-banner">
-          ℹ️ This simulation is in draft mode. Publish it to start collecting analytics data.
+      <div className="analytics-stats-grid">
+        <div className="analytics-stat-card">
+          <div className="stat-icon">👥</div>
+          <div className="stat-content">
+            <span className="stat-label">Total Participants</span>
+            <span className="stat-number">{totalSubmissions}</span>
+          </div>
         </div>
-      )}
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{mockEnrollments}</div>
-          <div className="stat-label">Total Enrollments</div>
+        <div className="analytics-stat-card">
+          <div className="stat-icon">✅</div>
+          <div className="stat-content">
+            <span className="stat-label">Completion Rate</span>
+            <span className="stat-number">{completionRate}%</span>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{mockCompletions}</div>
-          <div className="stat-label">Completions</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{completionRate}%</div>
-          <div className="stat-label">Completion Rate</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{avgTime}</div>
-          <div className="stat-label">Avg. Completion Time</div>
+        <div className="analytics-stat-card">
+          <div className="stat-icon">⏱️</div>
+          <div className="stat-content">
+            <span className="stat-label">Avg. Time Spent</span>
+            <span className="stat-number">{averageTimeMinutes}m</span>
+          </div>
         </div>
       </div>
 
-      {simulation.status === 'published' && (
-        <>
-          <div className="analytics-section">
-            <h2>Stage-by-Stage Drop-off</h2>
-            <p className="section-subtitle">Track where students are dropping out</p>
-            <div className="dropoff-chart">
-              {stageDropoff.map((stage, idx) => (
-                <div key={idx} className="dropoff-row">
-                  <div className="dropoff-label">
-                    <span className="stage-number">{idx + 1}</span>
-                    <span className="stage-name">{stage.stage}</span>
-                  </div>
-                  <div className="dropoff-bar-container">
-                    <div 
-                      className="dropoff-bar" 
-                      style={{ width: `${stage.percentage}%` }}
-                    >
-                      <span className="dropoff-value">{stage.students} students ({stage.percentage}%)</span>
-                    </div>
+      <div className="analytics-charts-grid">
+        <div className="analytics-card">
+          <h3>Completion Trend</h3>
+          <div className="chart-container">
+            <Line data={completionTrendData} options={chartOptions} />
+          </div>
+        </div>
+        
+        <div className="analytics-card">
+          <h3>Score Distribution</h3>
+          <div className="chart-container">
+            <Bar data={scoreDistributionData} options={chartOptions} />
+          </div>
+        </div>
+      </div>
+
+      <div className="analytics-details">
+        <div className="analytics-card">
+          <h3>Top Performing Candidates</h3>
+          <div className="candidates-list">
+            {submissions.slice(0, 5).map((sub, idx) => (
+              <div key={idx} className="candidate-item">
+                <div className="candidate-info">
+                  <div className="candidate-avatar">👤</div>
+                  <div>
+                    <h4>Student #{sub.studentId}</h4>
+                    <span className="candidate-date">Completed: {new Date(sub.submittedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
-              ))}
-            </div>
+                <button className="btn btn-outline btn-sm" onClick={() => navigate('/company/submissions')}>
+                  View Profile
+                </button>
+              </div>
+            ))}
+            {submissions.length === 0 && (
+              <p className="empty-text">No candidates have completed this simulation yet.</p>
+            )}
           </div>
+        </div>
 
-          <div className="analytics-section">
-            <h2>Top Performing Candidates</h2>
-            <p className="section-subtitle">Students who opted in to share their information</p>
-            <div className="candidates-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Score</th>
-                    <th>Completed</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockCandidates.map((candidate, idx) => (
-                    <tr key={idx}>
-                      <td>{candidate.name}</td>
-                      <td>{candidate.email}</td>
-                      <td>
-                        <span className={`score-badge ${candidate.score >= 90 ? 'high' : 'medium'}`}>
-                          {candidate.score}%
-                        </span>
-                      </td>
-                      <td>{candidate.completedAt}</td>
-                      <td>
-                        <span className={`opt-badge ${candidate.status === 'Opted In' ? 'opted-in' : 'opted-out'}`}>
-                          {candidate.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <div className="analytics-card">
+          <h3>Skills Assessment</h3>
+          <p className="card-description">Based on task completion and rubric evaluation</p>
+          <div className="skills-list">
+            {topSkills.map((skill, idx) => (
+              <div key={idx} className="skill-item">
+                <div className="skill-header">
+                  <span>{skill}</span>
+                  <span>{95 - (idx * 5)}%</span>
+                </div>
+                <div className="skill-bar-bg">
+                  <div 
+                    className="skill-bar-fill" 
+                    style={{ width: `${95 - (idx * 5)}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
           </div>
-
-          <div className="analytics-section">
-            <h2>Engagement Metrics</h2>
-            <div className="metrics-grid">
-              <div className="metric-card">
-                <div className="metric-icon">📊</div>
-                <div className="metric-value">{Math.floor(mockEnrollments * 0.15)}</div>
-                <div className="metric-label">Students in Progress</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-icon">⭐</div>
-                <div className="metric-value">4.{Math.floor(Math.random() * 3) + 6}</div>
-                <div className="metric-label">Avg. Rating</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-icon">💬</div>
-                <div className="metric-value">{Math.floor(mockCompletions * 0.4)}</div>
-                <div className="metric-label">Feedback Submissions</div>
-              </div>
-              <div className="metric-card">
-                <div className="metric-icon">🎯</div>
-                <div className="metric-value">{Math.floor(mockCompletions * 0.25)}</div>
-                <div className="metric-label">Candidates Opted In</div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

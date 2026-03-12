@@ -1,9 +1,12 @@
 import { templates, companies } from '../data/templates';
+import { fixedTemplates } from '../data/fixedTemplates';
 
 const STORAGE_KEYS = {
   SIMULATIONS: 'careerz_simulations',
   SUBMISSIONS: 'careerz_submissions',
   PROGRESS: 'careerz_progress',
+  CERTIFICATE_REQUESTS: 'careerz_certificate_requests',
+  NOTIFICATIONS: 'careerz_notifications',
   INITIALIZED: 'careerz_initialized'
 };
 
@@ -115,6 +118,30 @@ export const createBlankSimulation = (companyId) => {
   return newSimulation;
 };
 
+export const createSimulationFromFixedTemplate = (templateId, companyId) => {
+  const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
+  const template = fixedTemplates.find(t => t.id === templateId);
+  
+  if (!template) {
+    throw new Error('Template not found');
+  }
+  
+  const newSimulation = {
+    ...JSON.parse(JSON.stringify(template)),
+    id: `sim-${Date.now()}`,
+    companyId,
+    status: 'draft',
+    createdAt: new Date().toISOString(),
+    templateLevel: template.level,
+    version: 1
+  };
+  
+  simulations.push(newSimulation);
+  localStorage.setItem(STORAGE_KEYS.SIMULATIONS, JSON.stringify(simulations));
+  
+  return newSimulation;
+};
+
 export const updateSimulation = (simulation) => {
   const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
   const index = simulations.findIndex(sim => sim.id === simulation.id);
@@ -210,6 +237,163 @@ export const getCompanyByName = (name) => {
 
 export const getCompanyById = (id) => {
   return companies.find(c => c.id === id);
+};
+
+// Certificate Request Management
+export const requestCertificate = (simId, studentId, submissionId) => {
+  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.CERTIFICATE_REQUESTS) || '[]');
+  
+  const existingRequest = requests.find(r => r.simId === simId && r.studentId === studentId);
+  if (existingRequest) {
+    throw new Error('Certificate request already exists for this simulation');
+  }
+  
+  const request = {
+    id: `cert-req-${Date.now()}`,
+    simId,
+    studentId,
+    submissionId,
+    status: 'pending', // pending, approved, rejected
+    requestedAt: new Date().toISOString(),
+    reviewedAt: null,
+    reviewedBy: null,
+    reviewNotes: ''
+  };
+  
+  requests.push(request);
+  localStorage.setItem(STORAGE_KEYS.CERTIFICATE_REQUESTS, JSON.stringify(requests));
+  
+  // Create notification for company
+  createNotification({
+    type: 'certificate_request',
+    companyId: getSimulationById(simId)?.companyId,
+    title: 'New Certificate Request',
+    message: `Student ${studentId} has requested a certificate for simulation ${simId}`,
+    data: { requestId: request.id, simId, studentId },
+    read: false
+  });
+  
+  return request;
+};
+
+export const getCertificateRequest = (simId, studentId) => {
+  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.CERTIFICATE_REQUESTS) || '[]');
+  return requests.find(r => r.simId === simId && r.studentId === studentId);
+};
+
+export const getCertificateRequestsByCompany = (companyId) => {
+  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.CERTIFICATE_REQUESTS) || '[]');
+  const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
+  
+  return requests.filter(request => {
+    const sim = simulations.find(s => s.id === request.simId);
+    return sim?.companyId === companyId;
+  }).map(request => {
+    const sim = simulations.find(s => s.id === request.simId);
+    const submissions = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBMISSIONS) || '[]');
+    const submission = submissions.find(s => s.id === request.submissionId);
+    
+    return {
+      ...request,
+      simulationTitle: sim?.title,
+      submission
+    };
+  });
+};
+
+export const reviewCertificateRequest = (requestId, status, reviewerId, notes = '') => {
+  const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.CERTIFICATE_REQUESTS) || '[]');
+  const index = requests.findIndex(r => r.id === requestId);
+  
+  if (index === -1) {
+    throw new Error('Certificate request not found');
+  }
+  
+  requests[index] = {
+    ...requests[index],
+    status,
+    reviewedAt: new Date().toISOString(),
+    reviewedBy: reviewerId,
+    reviewNotes: notes
+  };
+  
+  localStorage.setItem(STORAGE_KEYS.CERTIFICATE_REQUESTS, JSON.stringify(requests));
+  
+  // Create notification for student
+  createNotification({
+    type: 'certificate_reviewed',
+    studentId: requests[index].studentId,
+    title: status === 'approved' ? 'Certificate Approved!' : 'Certificate Request Update',
+    message: status === 'approved' 
+      ? 'Your certificate request has been approved. You can now download your certificate.'
+      : `Your certificate request has been ${status}. ${notes}`,
+    data: { requestId, status },
+    read: false
+  });
+  
+  return requests[index];
+};
+
+// Notification Management
+export const createNotification = (notification) => {
+  const notifications = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]');
+  
+  const newNotification = {
+    id: `notif-${Date.now()}`,
+    ...notification,
+    createdAt: new Date().toISOString()
+  };
+  
+  notifications.push(newNotification);
+  localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+  
+  return newNotification;
+};
+
+export const getNotifications = (userId, userType) => {
+  const notifications = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]');
+  
+  return notifications.filter(n => {
+    if (userType === 'company') {
+      return n.companyId === userId;
+    } else if (userType === 'student') {
+      return n.studentId === userId;
+    }
+    return false;
+  }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+};
+
+export const markNotificationAsRead = (notificationId) => {
+  const notifications = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS) || '[]');
+  const index = notifications.findIndex(n => n.id === notificationId);
+  
+  if (index !== -1) {
+    notifications[index].read = true;
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+  }
+};
+
+export const getUnreadNotificationCount = (userId, userType) => {
+  const notifications = getNotifications(userId, userType);
+  return notifications.filter(n => !n.read).length;
+};
+
+// Get submissions by company
+export const getSubmissionsByCompany = (companyId) => {
+  const submissions = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBMISSIONS) || '[]');
+  const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
+  
+  return submissions.filter(submission => {
+    const sim = simulations.find(s => s.id === submission.simId);
+    return sim?.companyId === companyId;
+  }).map(submission => {
+    const sim = simulations.find(s => s.id === submission.simId);
+    return {
+      ...submission,
+      simulationTitle: sim?.title,
+      simulationDifficulty: sim?.difficulty
+    };
+  });
 };
 
 export const getAllCompanies = () => {

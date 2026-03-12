@@ -239,7 +239,9 @@ function SimulationBuilder() {
       <div className="builder-content">
         <div className="builder-sidebar">
           <div className="sidebar-section">
-            <h3>Metadata</h3>
+            <div className="section-header">
+              <h3>Metadata</h3>
+            </div>
             <div className="form-group">
               <label>Title</label>
               <input
@@ -247,6 +249,7 @@ function SimulationBuilder() {
                 value={simulation.title}
                 onChange={(e) => handleMetadataChange('title', e.target.value)}
                 className="input"
+                placeholder="Simulation Title"
               />
             </div>
             <div className="form-group">
@@ -256,6 +259,7 @@ function SimulationBuilder() {
                 onChange={(e) => handleMetadataChange('description', e.target.value)}
                 className="textarea"
                 rows={3}
+                placeholder="Describe what candidates will do..."
               />
             </div>
             <div className="form-group">
@@ -265,9 +269,9 @@ function SimulationBuilder() {
                 onChange={(e) => handleMetadataChange('difficulty', e.target.value)}
                 className="select"
               >
-                <option>Beginner</option>
-                <option>Intermediate</option>
-                <option>Advanced</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
               </select>
             </div>
             <div className="form-group">
@@ -285,7 +289,11 @@ function SimulationBuilder() {
           <div className="sidebar-section">
             <div className="section-header">
               <h3>Stages</h3>
-              <button onClick={handleAddStage} className="btn-icon">+</button>
+              <button onClick={handleAddStage} className="btn-icon" title="Add Stage">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
             </div>
             <div className="stages-list">
               {simulation.stages.map((stage, idx) => (
@@ -294,15 +302,18 @@ function SimulationBuilder() {
                   className={`stage-item ${idx === editingStageIndex ? 'active' : ''}`}
                   onClick={() => setEditingStageIndex(idx)}
                 >
-                  <span>{idx + 1}. {stage.title}</span>
+                  <span className="stage-item-title">{idx + 1}. {stage.title || 'Untitled Stage'}</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteStage(idx);
                     }}
-                    className="btn-icon-small"
+                    className="btn-icon-small btn-danger"
+                    title="Delete Stage"
                   >
-                    ✕
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               ))}
@@ -318,7 +329,7 @@ function SimulationBuilder() {
                 value={currentStage.title}
                 onChange={(e) => handleStageChange(editingStageIndex, 'title', e.target.value)}
                 className="stage-title-input"
-                placeholder="Stage Title"
+                placeholder="Enter Stage Title..."
               />
             </div>
 
@@ -326,37 +337,45 @@ function SimulationBuilder() {
               {currentStage.blocks.map((block, blockIdx) => (
                 <div key={block.id} className="block-editor">
                   <div className="block-editor-header">
-                    <span className="block-type">{block.type}</span>
+                    <span className="block-type">{block.type.replace(/([A-Z])/g, ' $1').trim()}</span>
                     <div className="block-actions">
                       <button
                         onClick={() => handleMoveBlockUp(editingStageIndex, blockIdx)}
-                        className="btn-icon-small"
+                        className="btn btn-icon"
                         disabled={blockIdx === 0}
                         title="Move up"
                       >
-                        ⬆️
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
                       </button>
                       <button
                         onClick={() => handleMoveBlockDown(editingStageIndex, blockIdx)}
-                        className="btn-icon-small"
+                        className="btn btn-icon"
                         disabled={blockIdx === currentStage.blocks.length - 1}
                         title="Move down"
                       >
-                        ⬇️
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                       </button>
                       <button
                         onClick={() => handleDuplicateBlock(editingStageIndex, blockIdx)}
-                        className="btn-icon-small"
+                        className="btn btn-icon"
                         title="Duplicate"
                       >
-                        📋
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
                       </button>
                       <button
                         onClick={() => handleDeleteBlock(editingStageIndex, blockIdx)}
-                        className="btn-icon-small"
+                        className="btn btn-icon btn-danger"
                         title="Delete"
                       >
-                        🗑️
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </div>
                   </div>

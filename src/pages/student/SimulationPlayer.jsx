@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationById, getStudentProgress, saveProgress, saveSubmission, getCompanyById } from '../../services/storage';
+import { getSimulationById, getStudentProgress, saveProgress, saveSubmission, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
 import BlockRenderer from '../../components/BlockRenderer';
 import './SimulationPlayer.css';
 
@@ -17,6 +17,8 @@ function SimulationPlayer() {
   const [saving, setSaving] = useState(false);
   const [showTaskComplete, setShowTaskComplete] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [certificateRequest, setCertificateRequest] = useState(null);
+  const [requestingCertificate, setRequestingCertificate] = useState(false);
 
   useEffect(() => {
     console.log('SimulationPlayer loading, id:', id);
@@ -35,6 +37,12 @@ function SimulationPlayer() {
       setCurrentStepIndex(progress.currentStepIndex || 0);
       setAnswers(progress.answers || {});
       setCompleted(progress.completed || false);
+    }
+
+    // Check for existing certificate request
+    const existingRequest = getCertificateRequest(id, STUDENT_ID);
+    if (existingRequest) {
+      setCertificateRequest(existingRequest);
     }
   }, [id, navigate]);
 
@@ -147,6 +155,21 @@ function SimulationPlayer() {
     window.open(linkedInUrl, '_blank');
   };
 
+  const handleRequestCertificate = async () => {
+    setRequestingCertificate(true);
+    try {
+      // Get the submission ID from the most recent submission
+      const submissionId = `sub-${Date.now()}`; // This would normally come from the actual submission
+      const request = requestCertificate(id, STUDENT_ID, submissionId);
+      setCertificateRequest(request);
+      alert('Certificate request submitted! The company will review your work and notify you once approved.');
+    } catch (error) {
+      alert(error.message || 'Failed to request certificate. Please try again.');
+    } finally {
+      setRequestingCertificate(false);
+    }
+  };
+
   if (!simulation) {
     return <div className="loading">Loading...</div>;
   }
@@ -163,25 +186,75 @@ function SimulationPlayer() {
           
           <div className="completion-certificate">
             <div className="certificate-icon">🏆</div>
-            <h3>You're Now Eligible for a Certificate!</h3>
-            <p className="certificate-description">
-              You have successfully completed this simulation and demonstrated your skills.
-              Your certificate of completion is ready to be claimed.
-            </p>
-            <div className="certificate-preview">
-              <div className="certificate-header">Certificate of Completion</div>
-              <div className="certificate-body">
-                <p>This certifies that</p>
-                <h4>Student #{STUDENT_ID}</h4>
-                <p>has successfully completed</p>
-                <h4>{simulation.title}</h4>
-                <p className="certificate-company">at {company?.name}</p>
-                <p className="certificate-date">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-              </div>
-            </div>
-            <button className="btn btn-success btn-lg">
-              Download Certificate
-            </button>
+            {!certificateRequest ? (
+              <>
+                <h3>Request Your Certificate</h3>
+                <p className="certificate-description">
+                  You have successfully completed this simulation! To receive your certificate of completion,
+                  submit a request for {company?.name} to review your work.
+                </p>
+                <div className="certificate-info">
+                  <h4>What happens next?</h4>
+                  <ul>
+                    <li>✓ {company?.name} will review your submissions</li>
+                    <li>✓ You'll be notified once your work is approved</li>
+                    <li>✓ Your certificate will be available for download</li>
+                  </ul>
+                </div>
+                <button 
+                  onClick={handleRequestCertificate} 
+                  className="btn btn-success btn-lg"
+                  disabled={requestingCertificate}
+                >
+                  {requestingCertificate ? 'Submitting Request...' : 'Request Certificate'}
+                </button>
+              </>
+            ) : (
+              <>
+                <h3>
+                  {certificateRequest.status === 'pending' && 'Certificate Request Pending'}
+                  {certificateRequest.status === 'approved' && 'Certificate Approved!'}
+                  {certificateRequest.status === 'rejected' && 'Certificate Request Reviewed'}
+                </h3>
+                <p className="certificate-description">
+                  {certificateRequest.status === 'pending' && `Your certificate request has been submitted to ${company?.name}. You'll be notified once they review your work.`}
+                  {certificateRequest.status === 'approved' && `Congratulations! ${company?.name} has approved your certificate request. You can now download your certificate.`}
+                  {certificateRequest.status === 'rejected' && `${company?.name} has reviewed your submission. ${certificateRequest.reviewNotes}`}
+                </p>
+                {certificateRequest.status === 'pending' && (
+                  <div className="certificate-status">
+                    <div className="status-badge pending">⏳ Under Review</div>
+                    <p className="status-date">Requested on {new Date(certificateRequest.requestedAt).toLocaleDateString()}</p>
+                  </div>
+                )}
+                {certificateRequest.status === 'approved' && (
+                  <>
+                    <div className="certificate-preview">
+                      <div className="certificate-header">Certificate of Completion</div>
+                      <div className="certificate-body">
+                        <p>This certifies that</p>
+                        <h4>Student #{STUDENT_ID}</h4>
+                        <p>has successfully completed</p>
+                        <h4>{simulation.title}</h4>
+                        <p className="certificate-company">at {company?.name}</p>
+                        <p className="certificate-date">{new Date(certificateRequest.reviewedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      </div>
+                    </div>
+                    <button className="btn btn-success btn-lg">
+                      Download Certificate
+                    </button>
+                  </>
+                )}
+                {certificateRequest.status === 'rejected' && (
+                  <button 
+                    onClick={() => navigate('/explore')} 
+                    className="btn btn-primary btn-lg"
+                  >
+                    Explore More Simulations
+                  </button>
+                )}
+              </>
+            )}
           </div>
 
           <div className="completion-share">
