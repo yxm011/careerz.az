@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { initializeStorage } from './services/storage';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import Landing from './pages/Landing';
 import ForCompanies from './pages/ForCompanies';
@@ -28,6 +30,9 @@ import AdminHome from './pages/admin/AdminHome';
 import AdminTemplates from './pages/admin/AdminTemplates';
 import AdminReview from './pages/admin/AdminReview';
 
+import SignIn from './pages/auth/SignIn';
+import SignUp from './pages/auth/SignUp';
+
 import './App.css';
 
 function App() {
@@ -43,20 +48,23 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/test" element={<Test />} />
-        <Route path="/" element={<Landing />} />
-        <Route path="/for-companies" element={<ForCompanies />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/for-educators" element={<ForEducators />} />
-        
-        <Route path="/student" element={<StudentLayout />}>
-          <Route path="dashboard" element={<StudentDashboard />} />
-        </Route>
-        
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/sim/:id" element={<SimulationPlayer />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/test" element={<Test />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/for-companies" element={<ForCompanies />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/for-educators" element={<ForEducators />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          
+          <Route path="/student" element={<ProtectedRoute><StudentLayout /></ProtectedRoute>}>
+            <Route path="dashboard" element={<StudentDashboard />} />
+          </Route>
+          
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/sim/:id" element={<ProtectedRoute><SimulationPlayer /></ProtectedRoute>} />
         
         <Route path="/company" element={<CompanyLayout />}>
           <Route index element={<CompanyHome />} />
@@ -74,8 +82,9 @@ function App() {
           <Route path="templates" element={<AdminTemplates />} />
           <Route path="review" element={<AdminReview />} />
         </Route>
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

@@ -1,14 +1,32 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from '../context/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user, signOut } = useAuth();
   
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const getUserName = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
   };
 
   return (
@@ -48,12 +66,25 @@ function Navbar() {
         <div className="navbar-right">
           <LanguageSelector />
           <div className="navbar-actions">
-            <Link to="/signin" className="btn-signin">
-              {t('nav.signIn')}
-            </Link>
-            <Link to="/signup" className="btn-signup">
-              {t('nav.signUp')}
-            </Link>
+            {user ? (
+              <>
+                <Link to="/student/dashboard" className="navbar-user">
+                  Welcome, {getUserName()}
+                </Link>
+                <button onClick={handleSignOut} className="btn-signout">
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signin" className="btn-signin">
+                  {t('nav.signIn')}
+                </Link>
+                <Link to="/signup" className="btn-signup">
+                  {t('nav.signUp')}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
