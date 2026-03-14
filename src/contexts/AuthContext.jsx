@@ -13,29 +13,56 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = async (userId) => {
+    if (!supabase || !userId) return null;
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (data) return data;
+
+    // No profile yet (existing user before role system) — create a default student profile
+    const { data: created } = await supabase
+      .from('profiles')
+      .upsert({ id: userId, role: 'student' }, { onConflict: 'id' })
+      .select()
+      .single();
+    return created || null;
+  };
+
   useEffect(() => {
-    // Check if Supabase is configured
     if (!supabase) {
-      // Fallback to localStorage for demo mode
       const localUser = localStorage.getItem('demo_user');
       if (localUser) {
-        setUser(JSON.parse(localUser));
+        const u = JSON.parse(localUser);
+        setUser(u);
+        setProfile({ role: u.user_metadata?.role || 'student', ...u.user_metadata });
       }
       setLoading(false);
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        const p = await fetchProfile(session.user.id);
+        setProfile(p);
+      }
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        const p = await fetchProfile(session.user.id);
+        setProfile(p);
+      } else {
+        setProfile(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -43,7 +70,6 @@ export const AuthProvider = ({ children }) => {
 
   const signUp = async (email, password, metadata = {}) => {
     if (!supabase) {
-      // Demo mode fallback
       const demoUser = {
         id: `demo-${Date.now()}`,
         email,
@@ -52,22 +78,20 @@ export const AuthProvider = ({ children }) => {
       };
       localStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
+      setProfile({ role: metadata.role || 'student', ...metadata });
       return { data: { user: demoUser }, error: null };
     }
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: metadata
-      }
+      options: { data: metadata }
     });
     return { data, error };
   };
 
   const signIn = async (email, password) => {
     if (!supabase) {
-      // Demo mode fallback
       const demoUser = {
         id: `demo-${Date.now()}`,
         email,
@@ -76,21 +100,19 @@ export const AuthProvider = ({ children }) => {
       };
       localStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
+      setProfile({ role: 'student' });
       return { data: { user: demoUser }, error: null };
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     return { data, error };
   };
 
   const signOut = async () => {
     if (!supabase) {
-      // Demo mode fallback
       localStorage.removeItem('demo_user');
       setUser(null);
+      setProfile(null);
       return { error: null };
     }
 
@@ -100,6 +122,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    profile,
     loading,
     signUp,
     signIn,

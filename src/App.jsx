@@ -34,6 +34,7 @@ import AdminReview from './pages/admin/AdminReview';
 
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import CompanySignUp from './pages/auth/CompanySignUp';
 
 import './App.css';
 
@@ -61,16 +62,17 @@ function App() {
           <Route path="/for-educators" element={<ForEducators />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/company/signup" element={<CompanySignUp />} />
           
-          <Route path="/student" element={<ProtectedRoute><StudentLayout /></ProtectedRoute>}>
+          <Route path="/student" element={<ProtectedRoute requiredRole="student"><StudentLayout /></ProtectedRoute>}>
             <Route path="dashboard" element={<StudentDashboard />} />
           </Route>
           
           <Route path="/explore" element={<Explore />} />
           <Route path="/sim/:id" element={<SimulationOverview />} />
-          <Route path="/sim/:id/play" element={<ProtectedRoute><SimulationPlayer /></ProtectedRoute>} />
+          <Route path="/sim/:id/play" element={<ProtectedRoute requiredRole="student"><SimulationPlayer /></ProtectedRoute>} />
         
-        <Route path="/company" element={<CompanyLayout />}>
+        <Route path="/company" element={<ProtectedRoute requiredRole="company"><CompanyLayout /></ProtectedRoute>}>
           <Route index element={<CompanyHome />} />
           <Route path="simulations" element={<CompanySimulations />} />
           <Route path="simulations/new" element={<TemplateSelect />} />
@@ -81,7 +83,7 @@ function App() {
           <Route path="subscription" element={<CompanySubscription />} />
         </Route>
         
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminHome />} />
           <Route path="templates" element={<AdminTemplates />} />
           <Route path="review" element={<AdminReview />} />

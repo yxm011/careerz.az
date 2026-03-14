@@ -7,7 +7,7 @@ import './Auth.css';
 
 function SignIn() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, profile } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,13 +18,33 @@ function SignIn() {
     setError('');
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { data, error } = await signIn(email, password);
     
     if (error) {
       setError(error.message);
       setLoading(false);
     } else {
-      navigate('/student/dashboard');
+      // role-based redirect happens via profile load in AuthContext
+      // we use a short delay to let profile load, then redirect
+      setTimeout(async () => {
+        const { supabase } = await import('../../lib/supabase');
+        if (supabase && data?.user) {
+          const { data: prof } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+          if (prof?.role === 'company') {
+            navigate('/company');
+          } else if (prof?.role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/student/dashboard');
+          }
+        } else {
+          navigate('/student/dashboard');
+        }
+      }, 300);
     }
   };
 
@@ -85,9 +105,11 @@ function SignIn() {
           <div className="auth-footer">
             <p>
               Don't have an account?{' '}
-              <Link to="/signup" className="auth-link">
-                Sign Up
-              </Link>
+              <Link to="/signup" className="auth-link">Sign Up</Link>
+            </p>
+            <p className="auth-divider-text">
+              Are you a company?{' '}
+              <Link to="/company/signup" className="auth-link">Enterprise Sign Up</Link>
             </p>
           </div>
         </div>

@@ -84,6 +84,52 @@
   font-size: 0.9375rem;
 }
 
+.auth-footer p {
+  margin-bottom: 0.5rem;
+}
+
+.auth-divider-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.auth-role-badge {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.company-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.auth-container-wide {
+  max-width: 1200px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.auth-illustration-company {
+  background: linear-gradient(145deg, #059669 0%, #064e3b 100%);
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .auth-link {
   color: #4f46e5;
   font-weight: 600;

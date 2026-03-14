@@ -41,7 +41,8 @@ function SignUp() {
     setLoading(true);
 
     const { error } = await signUp(formData.email, formData.password, {
-      full_name: formData.fullName
+      full_name: formData.fullName,
+      role: 'student'
     });
     
     if (error) {
@@ -139,17 +140,19 @@ function SignUp() {
           <div className="auth-footer">
             <p>
               Already have an account?{' '}
-              <Link to="/signin" className="auth-link">
-                Sign In
-              </Link>
+              <Link to="/signin" className="auth-link">Sign In</Link>
+            </p>
+            <p className="auth-divider-text">
+              Are you a company?{' '}
+              <Link to="/company/signup" className="auth-link">Register as Enterprise</Link>
             </p>
           </div>
         </div>
 
         <div className="auth-illustration">
           <div className="illustration-content">
-            <h2>Join Thousands of Learners</h2>
-            <p>Get hands-on experience with simulations from leading companies worldwide.</p>
+            <h2>Join as a Student</h2>
+            <p>Get hands-on experience with simulations from leading companies in Azerbaijan.</p>
             <div className="feature-list">
               <div className="feature-item">
                 <span className="feature-icon">✓</span>
