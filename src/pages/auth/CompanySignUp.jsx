@@ -42,6 +42,7 @@ function CompanySignUp() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,9 +84,33 @@ function CompanySignUp() {
       setError(error.message);
       setLoading(false);
     } else {
-      navigate('/company');
+      setConfirmed(true);
     }
   };
+
+  if (confirmed) {
+    return (
+      <>
+        <Navbar />
+        <div className="auth-page">
+          <div className="auth-container" style={{ gridTemplateColumns: '1fr' }}>
+            <div className="auth-card" style={{ textAlign: 'center', maxWidth: 520, margin: '0 auto' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>Check your email</h1>
+              <p style={{ color: '#64748b', marginBottom: '0.75rem', lineHeight: 1.6 }}>
+                We sent a confirmation link to <strong>{formData.email}</strong>.
+              </p>
+              <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                Click the link to activate your enterprise account, then sign in to access your company dashboard.
+              </p>
+              <Link to="/signin" className="btn btn-primary btn-lg btn-block">Go to Sign In</Link>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
