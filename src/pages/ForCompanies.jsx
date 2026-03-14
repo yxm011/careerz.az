@@ -225,12 +225,12 @@ function ForCompanies() {
             <h2>{t('forCompanies.cta.title')}</h2>
             <p>{t('forCompanies.cta.subtitle')}</p>
             <div className="cta-buttons">
-              <Link to="/company/register" className="btn btn-primary btn-lg">
+              <Link to="/company/signup" className="btn btn-primary btn-lg">
                 {t('forCompanies.cta.trialBtn')}
               </Link>
-              <Link to="/contact" className="btn btn-secondary btn-lg">
+              <a href="mailto:hello@careerz.az" className="btn btn-secondary btn-lg">
                 {t('forCompanies.cta.salesBtn')}
-              </Link>
+              </a>
             </div>
           </div>
         </section>

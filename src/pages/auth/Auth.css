@@ -124,6 +124,10 @@
   background: linear-gradient(145deg, #059669 0%, #064e3b 100%);
 }
 
+.auth-illustration-company .feature-item {
+  color: #000000;
+}
+
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr;
@@ -188,6 +192,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.auth-illustration .feature-item {
+  color: #000000;
 }
 
 .feature-item {
