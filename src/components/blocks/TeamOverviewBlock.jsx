@@ -1,7 +1,8 @@
 import './Block.css';
 
-function TeamOverviewBlock({ data }) {
+function TeamOverviewBlock({ data, userName }) {
   const { companyName, projectTitle, description, userRole, teamMembers } = data;
+  const displayName = userName || userRole.name;
 
   return (
     <div className="team-overview-block">
@@ -21,7 +22,7 @@ function TeamOverviewBlock({ data }) {
             </div>
             <div className="member-info">
               <div className="member-header">
-                <h4 className="member-name">{userRole.name}</h4>
+                <h4 className="member-name">{displayName}</h4>
                 <span className="member-badge">YOU</span>
               </div>
               <p className="member-role">{userRole.title}</p>

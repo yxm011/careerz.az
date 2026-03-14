@@ -336,6 +336,7 @@ function SimulationPlayer() {
               block={block}
               value={answers[block.id]}
               onChange={(value) => handleAnswerChange(block.id, value)}
+              userName={user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0]}
             />
           ))}
         </div>

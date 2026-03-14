@@ -17,7 +17,7 @@ import RoleOverviewBlock from './blocks/RoleOverviewBlock';
 import TransitionBlock from './blocks/TransitionBlock';
 import './BlockRenderer.css';
 
-function BlockRenderer({ block, value, onChange }) {
+function BlockRenderer({ block, value, onChange, userName }) {
   const renderBlock = () => {
     switch (block.type) {
       case 'richText':
@@ -47,7 +47,7 @@ function BlockRenderer({ block, value, onChange }) {
       case 'codeEditor':
         return <CodeEditorBlock data={block.data} value={value} onChange={onChange} />;
       case 'teamOverview':
-        return <TeamOverviewBlock data={block.data} />;
+        return <TeamOverviewBlock data={block.data} userName={userName} />;
       case 'scenarioBrief':
         return <ScenarioBriefBlock data={block.data} />;
       case 'roleOverview':
