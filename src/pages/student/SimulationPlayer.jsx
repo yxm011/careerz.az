@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationById, getStudentProgress, saveProgress, saveSubmission, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
+import { getSimulationById, saveSubmission, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
+import { loadProgress, saveProgress, markCompleted } from '../../services/progressService';
+import { useAuth } from '../../contexts/AuthContext';
 import BlockRenderer from '../../components/BlockRenderer';
 import './SimulationPlayer.css';
-
-const STUDENT_ID = 'student-1';
 
 function SimulationPlayer() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [simulation, setSimulation] = useState(null);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -21,30 +22,29 @@ function SimulationPlayer() {
   const [requestingCertificate, setRequestingCertificate] = useState(false);
 
   useEffect(() => {
-    console.log('SimulationPlayer loading, id:', id);
     const sim = getSimulationById(id);
-    console.log('Found simulation:', sim);
     if (!sim) {
-      console.log('Simulation not found, redirecting to /explore');
       navigate('/explore');
       return;
     }
     setSimulation(sim);
 
-    const progress = getStudentProgress(id, STUDENT_ID);
-    if (progress) {
-      setCurrentStageIndex(progress.currentStageIndex || 0);
-      setCurrentStepIndex(progress.currentStepIndex || 0);
-      setAnswers(progress.answers || {});
-      setCompleted(progress.completed || false);
-    }
+    if (user) {
+      loadProgress(user.id, id).then(progress => {
+        if (progress) {
+          setCurrentStageIndex(progress.current_stage_index || 0);
+          setCurrentStepIndex(progress.current_step_index || 0);
+          setAnswers(progress.answers || {});
+          setCompleted(progress.completed || false);
+        }
+      });
 
-    // Check for existing certificate request
-    const existingRequest = getCertificateRequest(id, STUDENT_ID);
-    if (existingRequest) {
-      setCertificateRequest(existingRequest);
+      const existingRequest = getCertificateRequest(id, user.id);
+      if (existingRequest) {
+        setCertificateRequest(existingRequest);
+      }
     }
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   const handleAnswerChange = (blockId, value) => {
     setAnswers(prev => ({
@@ -53,13 +53,13 @@ function SimulationPlayer() {
     }));
   };
 
-  const handleSaveProgress = () => {
+  const handleSaveProgress = async () => {
+    if (!user) return;
     setSaving(true);
-    saveProgress(id, STUDENT_ID, {
+    await saveProgress(user.id, id, {
       currentStageIndex,
       currentStepIndex,
-      answers,
-      completed: false
+      answers
     });
     setTimeout(() => setSaving(false), 500);
   };
@@ -85,12 +85,7 @@ function SimulationPlayer() {
       const newStepIndex = currentStepIndex + 1;
       setTimeout(() => {
         setCurrentStepIndex(newStepIndex);
-        saveProgress(id, STUDENT_ID, {
-          currentStageIndex,
-          currentStepIndex: newStepIndex,
-          answers,
-          completed: false
-        });
+        if (user) saveProgress(user.id, id, { currentStageIndex, currentStepIndex: newStepIndex, answers });
         window.scrollTo(0, 0);
       }, delay);
     } else {
@@ -118,23 +113,18 @@ function SimulationPlayer() {
       const newIndex = currentStageIndex + 1;
       setCurrentStageIndex(newIndex);
       setCurrentStepIndex(0);
-      saveProgress(id, STUDENT_ID, {
-        currentStageIndex: newIndex,
-        currentStepIndex: 0,
-        answers,
-        completed: false
-      });
+      if (user) saveProgress(user.id, id, { currentStageIndex: newIndex, currentStepIndex: 0, answers });
       window.scrollTo(0, 0);
     }
   };
 
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (window.confirm('Are you sure you want to submit this simulation? You cannot make changes after submission.')) {
-      saveSubmission(id, STUDENT_ID, {
-        answers,
-        submittedAt: new Date().toISOString()
-      });
+      if (user) {
+        await markCompleted(user.id, id, answers);
+        saveSubmission(id, user.id, { answers, submittedAt: new Date().toISOString() });
+      }
       setCompleted(true);
       window.scrollTo(0, 0);
     }
@@ -156,11 +146,11 @@ function SimulationPlayer() {
   };
 
   const handleRequestCertificate = async () => {
+    if (!user) return;
     setRequestingCertificate(true);
     try {
-      // Get the submission ID from the most recent submission
-      const submissionId = `sub-${Date.now()}`; // This would normally come from the actual submission
-      const request = requestCertificate(id, STUDENT_ID, submissionId);
+      const submissionId = `sub-${Date.now()}`;
+      const request = requestCertificate(id, user.id, submissionId);
       setCertificateRequest(request);
       alert('Certificate request submitted! The company will review your work and notify you once approved.');
     } catch (error) {
@@ -176,6 +166,7 @@ function SimulationPlayer() {
 
   if (completed) {
     const company = getCompanyById(simulation.companyId);
+    const studentId = user?.id || 'student';
     return (
       <div className="completion-screen">
         <div className="completion-content">
@@ -233,7 +224,7 @@ function SimulationPlayer() {
                       <div className="certificate-header">Certificate of Completion</div>
                       <div className="certificate-body">
                         <p>This certifies that</p>
-                        <h4>Student #{STUDENT_ID}</h4>
+                        <h4>{user?.user_metadata?.full_name || user?.email || 'Student'}</h4>
                         <p>has successfully completed</p>
                         <h4>{simulation.title}</h4>
                         <p className="certificate-company">at {company?.name}</p>

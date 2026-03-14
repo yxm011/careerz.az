@@ -596,7 +596,7 @@
   color: white;
   position: relative;
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
 }
 
 .cta-section::before {
@@ -744,20 +744,50 @@
     font-size: 1.5rem;
   }
   
+  .how-it-works-section {
+    padding: 4rem 1.5rem;
+  }
+  
+  .section-header {
+    margin-bottom: 3rem;
+  }
+  
   .section-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
   }
   
   .section-subtitle {
-    font-size: 1.0625rem;
+    font-size: 1rem;
+    padding: 0 1rem;
   }
   
   .steps-grid {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .step-card {
+    padding: 2.5rem 1.75rem;
+  }
+  
+  .benefits {
+    padding: 4rem 1.5rem;
+  }
+  
+  .benefits-container {
+    grid-template-columns: 1fr;
+    gap: 3rem;
   }
   
   .benefits-content h2 {
     font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .benefits-list {
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
   
   .testimonials-grid {
@@ -768,22 +798,61 @@
     grid-template-columns: repeat(2, 1fr);
   }
   
+  .cta-section {
+    padding: 4rem 1.5rem;
+  }
+  
   .cta-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
   }
   
   .cta-subtitle {
-    font-size: 1.0625rem;
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .partners {
+    padding: 3rem 1.5rem;
   }
   
   .partners-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .hero {
+    padding: 3rem 1rem 4rem;
+  }
+  
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .how-it-works-section {
+    padding: 3rem 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+  }
+  
+  .section-subtitle {
+    font-size: 0.9375rem;
+  }
+  
+  .step-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .step-card h3 {
+    font-size: 1.25rem;
   }
   
   .stats-grid {
@@ -798,5 +867,21 @@
   .btn-lg {
     width: 100%;
     justify-content: center;
+  }
+  
+  .benefits {
+    padding: 3rem 1rem;
+  }
+  
+  .cta-section {
+    padding: 3rem 1rem;
+  }
+  
+  .cta-title {
+    font-size: 1.75rem;
+  }
+  
+  .partners-grid {
+    grid-template-columns: 1fr;
   }
 }

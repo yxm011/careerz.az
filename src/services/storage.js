@@ -1,6 +1,8 @@
 import { templates, companies } from '../data/templates';
 import { fixedTemplates } from '../data/fixedTemplates';
 
+const STORAGE_VERSION = `v2-${templates.length}-${templates.map(t => t.id).join(',')}`;
+
 const STORAGE_KEYS = {
   SIMULATIONS: 'careerz_simulations',
   SUBMISSIONS: 'careerz_submissions',
@@ -19,7 +21,8 @@ export const resetStorage = () => {
 };
 
 export const initializeStorage = () => {
-  if (localStorage.getItem(STORAGE_KEYS.INITIALIZED)) {
+  const storedVersion = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
+  if (storedVersion === STORAGE_VERSION) {
     return;
   }
 
@@ -31,10 +34,10 @@ export const initializeStorage = () => {
     publishedAt: new Date(Date.now() - Math.random() * 20 * 24 * 60 * 60 * 1000).toISOString()
   }));
 
-  localStorage.setItem(STORAGE_KEYS.SIMULATIONS, JSON.stringify([...templates, ...publishedSimulations]));
+  localStorage.setItem(STORAGE_KEYS.SIMULATIONS, JSON.stringify(publishedSimulations));
   localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
   localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify({}));
-  localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
+  localStorage.setItem(STORAGE_KEYS.INITIALIZED, STORAGE_VERSION);
 };
 
 export const getSimulations = (filters = {}) => {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getSimulations } from '../../services/storage';
+import { getSimulations, getCompanyById } from '../../services/storage';
+import { getAllUserProgress } from '../../services/progressService';
 import './StudentDashboard.css';
 
 function StudentDashboard() {
@@ -22,33 +23,36 @@ function StudentDashboard() {
     }
   }, [user]);
 
-  const loadUserProgress = () => {
-    // Get user's progress from localStorage
-    const progress = JSON.parse(localStorage.getItem('PROGRESS') || '{}');
-    const userProgress = progress[user.id] || {};
-    
-    const submissions = JSON.parse(localStorage.getItem('SUBMISSIONS') || '[]');
-    const userSubmissions = submissions.filter(s => s.studentId === user.id);
-    
-    const certificates = JSON.parse(localStorage.getItem('CERTIFICATE_REQUESTS') || '[]');
-    const userCertificates = certificates.filter(c => c.studentId === user.id && c.status === 'approved');
+  const loadUserProgress = async () => {
+    const allProgress = await getAllUserProgress(user.id);
+    const allSims = getSimulations({ status: 'published' });
+
+    const inProgressList = allProgress.filter(p => !p.completed);
+    const completedList = allProgress.filter(p => p.completed);
 
     setStats({
-      inProgress: Object.keys(userProgress).length,
-      completed: userSubmissions.filter(s => s.status === 'submitted').length,
-      certificates: userCertificates.length
+      inProgress: inProgressList.length,
+      completed: completedList.length,
+      certificates: 0
     });
 
-    // Get recent activity
-    const allSims = getSimulations({ status: 'published' });
-    const recent = Object.entries(userProgress)
-      .map(([simId, data]) => {
-        const sim = allSims.find(s => s.id === simId);
-        return sim ? { ...sim, progress: data } : null;
+    const recent = allProgress
+      .map(p => {
+        const sim = allSims.find(s => s.id === p.simulation_id);
+        if (!sim) return null;
+        const company = getCompanyById(sim.companyId);
+        return {
+          ...sim,
+          company,
+          progressRecord: p,
+          progressPercent: sim.stages
+            ? Math.round((p.current_stage_index / sim.stages.length) * 100)
+            : 0
+        };
       })
       .filter(Boolean)
       .slice(0, 5);
-    
+
     setRecentActivity(recent);
   };
 
@@ -57,10 +61,7 @@ function StudentDashboard() {
     navigate('/');
   };
 
-  const getProgressPercentage = (progress) => {
-    if (!progress || !progress.totalStages) return 0;
-    return Math.round((progress.currentStageIndex / progress.totalStages) * 100);
-  };
+  const getProgressPercentage = (sim) => sim?.progressPercent || 0;
 
   const totalLearningItems = stats.inProgress + stats.completed;
 
@@ -152,12 +153,14 @@ function StudentDashboard() {
                   {recentActivity.map((sim) => (
                     <Link 
                       key={sim.id} 
-                      to={`/sim/${sim.id}`}
+                      to={sim.progressRecord?.completed ? `/sim/${sim.id}` : `/sim/${sim.id}/play`}
                       className="activity-card"
                     >
                       <div className="activity-card-top">
-                        <span className="activity-category">Simulation</span>
-                        <span className="activity-badge">{sim.difficulty}</span>
+                        <span className="activity-category">{sim.company?.name || 'Simulation'}</span>
+                        <span className={`activity-badge ${sim.progressRecord?.completed ? 'completed' : 'in-progress'}`}>
+                          {sim.progressRecord?.completed ? '✓ Completed' : sim.difficulty}
+                        </span>
                       </div>
                       <div className="activity-header">
                         <h3>{sim.title}</h3>
@@ -167,19 +170,21 @@ function StudentDashboard() {
                         <span>{sim.duration || 'Self-paced'}</span>
                         <span>{sim.tags?.[0] || 'Career skill'}</span>
                       </div>
+                      {!sim.progressRecord?.completed && (
                       <div className="activity-progress">
                         <div className="activity-progress-header">
                           <span>Progress</span>
-                          <span>{getProgressPercentage(sim.progress)}%</span>
+                          <span>{getProgressPercentage(sim)}%</span>
                         </div>
                         <div className="progress-bar-bg">
                           <div 
                             className="progress-bar-fill" 
-                            style={{ width: `${getProgressPercentage(sim.progress)}%` }}
+                            style={{ width: `${getProgressPercentage(sim)}%` }}
                           ></div>
                         </div>
                         <span className="progress-text">Resume where you left off</span>
                       </div>
+                      )}
                     </Link>
                   ))}
                 </div>

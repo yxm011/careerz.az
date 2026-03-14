@@ -71,6 +71,9 @@ function Navbar() {
                 <Link to="/student/dashboard" className="navbar-user">
                   Welcome, {getUserName()}
                 </Link>
+                <Link to="/student/dashboard" className="navbar-profile-mobile">
+                  Profile
+                </Link>
                 <button onClick={handleSignOut} className="btn-signout">
                   Sign Out
                 </button>

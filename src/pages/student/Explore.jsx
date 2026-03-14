@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSimulations, getCompanyById } from '../../services/storage';
 import { useTranslation } from '../../context/LanguageContext';
+import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import './Explore.css';
@@ -78,7 +79,7 @@ function Explore() {
                 <div className="card-footer">
                   <span className="duration">⏱ {sim.duration}</span>
                   <Link to={`/sim/${sim.id}`} className="btn btn-primary">
-                    {t('explore.startBtn')}
+                    View Details
                   </Link>
                 </div>
               </div>

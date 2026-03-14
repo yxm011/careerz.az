@@ -320,6 +320,16 @@
   white-space: nowrap;
 }
 
+.activity-badge.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.activity-badge.in-progress {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
 .activity-description {
   color: #64748b;
   font-size: 0.9375rem;

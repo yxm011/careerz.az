@@ -133,6 +133,23 @@
   color: #667eea;
 }
 
+.navbar-profile-mobile {
+  display: none;
+  padding: 0.45rem 0.9rem;
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.navbar-profile-mobile:hover {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
 .btn-signout {
   padding: 0.5rem 1.25rem;
   background: transparent;
@@ -173,10 +190,12 @@
   
   .navbar-right {
     gap: 0.75rem;
+    min-width: 0;
   }
   
   .navbar-actions {
     gap: 0.5rem;
+    min-width: 0;
   }
   
   .btn-signin,
@@ -184,8 +203,24 @@
     padding: 0.4rem 1rem;
     font-size: 0.85rem;
   }
+
+  .navbar-user {
+    display: none;
+  }
+
+  .navbar-profile-mobile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-signout {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
   
   .navbar-logo {
     font-size: 1.25rem;
   }
-}
+ }

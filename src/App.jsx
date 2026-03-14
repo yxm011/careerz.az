@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { initializeStorage } from './services/storage';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 
 import Landing from './pages/Landing';
 import ForCompanies from './pages/ForCompanies';
@@ -14,6 +15,7 @@ import AdminLayout from './layouts/AdminLayout';
 
 import Explore from './pages/student/Explore';
 import SimulationPlayer from './pages/student/SimulationPlayer';
+import SimulationOverview from './pages/student/SimulationOverview';
 import StudentDashboard from './pages/student/StudentDashboard';
 import Test from './pages/Test';
 
@@ -50,6 +52,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/test" element={<Test />} />
           <Route path="/" element={<Landing />} />
@@ -64,7 +67,8 @@ function App() {
           </Route>
           
           <Route path="/explore" element={<Explore />} />
-          <Route path="/sim/:id" element={<ProtectedRoute><SimulationPlayer /></ProtectedRoute>} />
+          <Route path="/sim/:id" element={<SimulationOverview />} />
+          <Route path="/sim/:id/play" element={<ProtectedRoute><SimulationPlayer /></ProtectedRoute>} />
         
         <Route path="/company" element={<CompanyLayout />}>
           <Route index element={<CompanyHome />} />
