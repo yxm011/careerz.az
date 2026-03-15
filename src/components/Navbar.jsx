@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from '../context/LanguageContext';
@@ -9,6 +10,7 @@ function Navbar() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user, profile, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const role = profile?.role;
   const isCompany = role === 'company';
@@ -88,7 +90,7 @@ function Navbar() {
         Submissions
       </Link>
       <Link to="/company/talent-pool" className={`navbar-link ${isActive('/company/talent-pool') ? 'active' : ''}`}>
-        Talent Pool
+        Talent
       </Link>
       <Link to="/company/profile" className={`navbar-link ${isActive('/company/profile') ? 'active' : ''}`}>
         Settings
@@ -113,6 +115,20 @@ function Navbar() {
         
         <div className="navbar-right">
           <LanguageSelector />
+          
+          {/* Hamburger menu button for mobile */}
+          <button 
+            className="mobile-menu-button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className={`hamburger ${mobileMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
+
           <div className="navbar-actions">
             {user ? (
               <>
@@ -131,9 +147,6 @@ function Navbar() {
                 <Link to={getDashboardPath()} className="navbar-profile-mobile">
                   {profile && isCompany ? 'Panel' : 'Profile'}
                 </Link>
-                <button type="button" onClick={handleSignOut} className="btn-signout">
-                  Sign Out
-                </button>
               </>
             ) : (
               <>
@@ -148,6 +161,87 @@ function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
+          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-menu-header">
+              <span className="mobile-menu-title">Menu</span>
+              <button 
+                className="mobile-menu-close"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mobile-menu-content">
+              {/* User info section */}
+              {user && profile && (
+                <div className="mobile-menu-user">
+                  {profile && isCompany && <span className="navbar-role-badge navbar-role-badge--company">Enterprise</span>}
+                  {profile && !isCompany && !isAdmin && <span className="navbar-role-badge navbar-role-badge--student">Student</span>}
+                  <span className="mobile-menu-username">{getUserName()}</span>
+                </div>
+              )}
+
+              {/* Navigation links */}
+              <div className="mobile-menu-links">
+                {!user && (
+                  <>
+                    <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>{t('nav.simulations')}</Link>
+                    <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>{t('nav.blog')}</Link>
+                    <Link to="/for-companies" onClick={() => setMobileMenuOpen(false)}>{t('nav.forEnterprise')}</Link>
+                    <Link to="/for-educators" onClick={() => setMobileMenuOpen(false)}>{t('nav.forEducators')}</Link>
+                  </>
+                )}
+
+                {user && profile && !isCompany && !isAdmin && (
+                  <>
+                    <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
+                    <Link to="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>My Dashboard</Link>
+                    <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+                  </>
+                )}
+
+                {user && profile && isCompany && (
+                  <>
+                    <Link to="/company" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                    <Link to="/company/simulations" onClick={() => setMobileMenuOpen(false)}>Simulations</Link>
+                    <Link to="/company/submissions" onClick={() => setMobileMenuOpen(false)}>Submissions</Link>
+                    <Link to="/company/talent-pool" onClick={() => setMobileMenuOpen(false)}>Talent</Link>
+                    <Link to="/company/profile" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
+                  </>
+                )}
+              </div>
+
+              {/* Auth actions */}
+              <div className="mobile-menu-actions">
+                {!user ? (
+                  <>
+                    <Link to="/signin" className="mobile-menu-btn mobile-menu-btn-signin" onClick={() => setMobileMenuOpen(false)}>
+                      {t('nav.signIn')}
+                    </Link>
+                    <Link to="/signup" className="mobile-menu-btn mobile-menu-btn-signup" onClick={() => setMobileMenuOpen(false)}>
+                      {t('nav.signUp')}
+                    </Link>
+                  </>
+                ) : (
+                  <Link 
+                    to={getDashboardPath()} 
+                    className="mobile-menu-btn mobile-menu-btn-primary"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Go to Dashboard
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import './Company.css';
 
 function CompanyProfileSettings() {
-  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
   const [formData, setFormData] = useState({
     company_name: '',
     full_name: '',
@@ -178,6 +180,20 @@ function CompanyProfileSettings() {
             </button>
           </div>
         </form>
+
+        <div className="profile-danger-zone">
+          <h3>Account</h3>
+          <button 
+            type="button" 
+            onClick={async () => {
+              await signOut();
+              navigate('/', { replace: true });
+            }}
+            className="btn btn-danger"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -8,13 +8,14 @@
 }
 
 .navbar-container {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 2.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 75px;
+  gap: 2rem;
 }
 
 .navbar-logo {
@@ -23,6 +24,8 @@
   color: #2563eb;
   text-decoration: none;
   transition: color 0.2s;
+  flex-shrink: 0;
+  margin-right: 1rem;
 }
 
 .navbar-logo:hover {
@@ -31,8 +34,9 @@
 
 .navbar-menu {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
   align-items: center;
+  flex: 1;
 }
 
 .navbar-link {
@@ -75,14 +79,16 @@
 
 .navbar-right {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .navbar-actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .btn-signin {
@@ -121,12 +127,16 @@
 }
 
 .navbar-user {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.25rem;
   color: #4b5563;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
   transition: color 0.2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .navbar-user:hover {
@@ -193,15 +203,16 @@
 
 /* Role badge */
 .navbar-role-badge {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-right: 0.45rem;
-  vertical-align: middle;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .navbar-role-badge--company {
@@ -216,17 +227,18 @@
 
 /* Quick-create button for companies */
 .btn-create-sim {
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 1.25rem;
   background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
   color: white;
   border: none;
   border-radius: 6px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   transition: all 0.2s;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-create-sim:hover {
@@ -244,10 +256,199 @@
   }
 }
 
+/* Mobile hamburger button */
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 24px;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #4b5563;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Mobile menu overlay */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mobile-menu-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.mobile-menu-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.mobile-menu-username {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-menu-links a {
+  padding: 0.875rem 1rem;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mobile-menu-links a:hover {
+  background: #f3f4f6;
+  color: #667eea;
+}
+
+.mobile-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.mobile-menu-btn {
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mobile-menu-btn-signin {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.mobile-menu-btn-signin:hover {
+  background: #e5e7eb;
+}
+
+.mobile-menu-btn-signup {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
+.mobile-menu-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
 @media (max-width: 768px) {
   .navbar-container {
     padding: 0 1rem;
     height: 60px;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .mobile-menu-overlay {
+    display: block;
   }
   
   .navbar-menu {
@@ -266,8 +467,7 @@
   
   .btn-signin,
   .btn-signup {
-    padding: 0.4rem 1rem;
-    font-size: 0.85rem;
+    display: none;
   }
 
   .navbar-user {
@@ -275,15 +475,7 @@
   }
 
   .navbar-profile-mobile {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-signout {
-    padding: 0.4rem 0.85rem;
-    font-size: 0.82rem;
-    white-space: nowrap;
+    display: none;
   }
   
   .navbar-logo {
@@ -291,11 +483,10 @@
   }
 
   .btn-create-sim {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
+    display: none;
   }
 
   .navbar-role-badge {
-    display: none;
+    display: inline-flex;
   }
  }

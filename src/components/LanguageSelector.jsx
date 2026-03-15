@@ -37,10 +37,9 @@ function LanguageSelector() {
         className="language-button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Select language"
+        title="Select language"
       >
         <span className="globe-icon">🌐</span>
-        <span className="language-code">{currentLanguage?.code.toUpperCase()}</span>
-        <span className={`dropdown-arrow ${isOpen ? 'open' : ''}`}>▼</span>
       </button>
 
       {isOpen && (
