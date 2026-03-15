@@ -15,26 +15,39 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const emailRedirectTo = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://careerz.az';
 
   const fetchProfile = async (userId) => {
     if (!supabase || !userId) return null;
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    if (data) return data;
+    try {
+      // Just fetch the profile — DB trigger guarantees it exists with correct role
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    // No profile yet (existing user before role system) — create a default student profile
-    const { data: created } = await supabase
-      .from('profiles')
-      .upsert({ id: userId, role: 'student' }, { onConflict: 'id' })
-      .select()
-      .single();
-    return created || null;
+      if (data) {
+        return data;
+      }
+
+      // Profile missing (shouldn't happen with trigger, but handle gracefully)
+      console.warn('Profile not found for user:', userId);
+      return { id: userId, role: 'student' };
+    } catch (err) {
+      console.error('fetchProfile error:', err);
+      return { id: userId, role: 'student' };
+    }
   };
 
   useEffect(() => {
+    let isMounted = true;
+    const loadingSafetyTimer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }, 4000);
+
     if (!supabase) {
       const localUser = localStorage.getItem('demo_user');
       if (localUser) {
@@ -43,29 +56,55 @@ export const AuthProvider = ({ children }) => {
         setProfile({ role: u.user_metadata?.role || 'student', ...u.user_metadata });
       }
       setLoading(false);
-      return;
+      clearTimeout(loadingSafetyTimer);
+      return () => {
+        isMounted = false;
+        clearTimeout(loadingSafetyTimer);
+      };
     }
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const p = await fetchProfile(session.user.id);
-        setProfile(p);
+      try {
+        if (!isMounted) return;
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const p = await fetchProfile(session.user.id);
+          if (isMounted) setProfile(p);
+        }
+      } catch (err) {
+        console.error('getSession profile error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+        clearTimeout(loadingSafetyTimer);
       }
-      setLoading(false);
+    }).catch((err) => {
+      console.error('getSession error:', err);
+      if (isMounted) setLoading(false);
+      clearTimeout(loadingSafetyTimer);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const p = await fetchProfile(session.user.id);
-        setProfile(p);
-      } else {
-        setProfile(null);
+      try {
+        if (!isMounted) return;
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const p = await fetchProfile(session.user.id);
+          if (isMounted) setProfile(p);
+        } else {
+          if (isMounted) setProfile(null);
+        }
+        if (isMounted) setLoading(false);
+      } catch (err) {
+        console.error('onAuthStateChange error:', err);
+        if (isMounted) setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      clearTimeout(loadingSafetyTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email, password, metadata = {}) => {
@@ -85,7 +124,10 @@ export const AuthProvider = ({ children }) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: metadata }
+      options: {
+        data: metadata,
+        emailRedirectTo
+      }
     });
     return { data, error };
   };
@@ -105,6 +147,12 @@ export const AuthProvider = ({ children }) => {
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data?.user) {
+      setUser(data.user);
+      const p = await fetchProfile(data.user.id);
+      setProfile(p);
+      setLoading(false);
+    }
     return { data, error };
   };
 
@@ -113,11 +161,25 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('demo_user');
       setUser(null);
       setProfile(null);
+      setLoading(false);
       return { error: null };
     }
 
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    // Clear local auth state immediately so UI can react without waiting on network
+    setUser(null);
+    setProfile(null);
+    setLoading(false);
+
+    try {
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((resolve) => setTimeout(resolve, 1500))
+      ]);
+    } catch (err) {
+      console.error('signOut error:', err);
+    }
+
+    return { error: null };
   };
 
   const value = {

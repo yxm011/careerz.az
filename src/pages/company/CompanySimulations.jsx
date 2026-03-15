@@ -1,34 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getSimulations, deleteSimulation, publishSimulation } from '../../services/storage';
+import { getSimulationsFromDB, deleteSimulationInDB, publishSimulationInDB } from '../../services/storage';
+import { useAuth } from '../../contexts/AuthContext';
 import './Company.css';
 
-const COMPANY_ID = 'company-1';
-
 function CompanySimulations() {
+  const { profile } = useAuth();
+  const companyId = profile?.id;
   const [simulations, setSimulations] = useState([]);
   const [filter, setFilter] = useState('all');
 
-  const loadSimulations = () => {
-    const sims = getSimulations({ companyId: COMPANY_ID });
+  const loadSimulations = async () => {
+    if (!companyId) return;
+    const sims = await getSimulationsFromDB({ companyId });
     setSimulations(sims);
   };
 
   useEffect(() => {
     loadSimulations();
-  }, []);
+  }, [companyId]);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this simulation?')) {
-      deleteSimulation(id);
-      loadSimulations();
+      await deleteSimulationInDB(id);
+      await loadSimulations();
     }
   };
 
-  const handlePublish = (id) => {
+  const handlePublish = async (id) => {
     if (window.confirm('Publish this simulation? It will be visible to all students.')) {
-      publishSimulation(id);
-      loadSimulations();
+      await publishSimulationInDB(id);
+      await loadSimulations();
     }
   };
 

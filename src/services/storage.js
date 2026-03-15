@@ -1,5 +1,6 @@
 import { templates, companies } from '../data/templates';
 import { fixedTemplates } from '../data/fixedTemplates';
+import { supabase } from '../lib/supabase';
 
 const STORAGE_VERSION = `v2-${templates.length}-${templates.map(t => t.id).join(',')}`;
 
@@ -243,7 +244,7 @@ export const getCompanyById = (id) => {
 };
 
 // Certificate Request Management
-export const requestCertificate = (simId, studentId, submissionId) => {
+export const requestCertificate = (simId, studentId, submissionId, companyId = null) => {
   const requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.CERTIFICATE_REQUESTS) || '[]');
   
   const existingRequest = requests.find(r => r.simId === simId && r.studentId === studentId);
@@ -267,9 +268,10 @@ export const requestCertificate = (simId, studentId, submissionId) => {
   localStorage.setItem(STORAGE_KEYS.CERTIFICATE_REQUESTS, JSON.stringify(requests));
   
   // Create notification for company
+  const resolvedCompanyId = companyId || getSimulationById(simId)?.companyId;
   createNotification({
     type: 'certificate_request',
-    companyId: getSimulationById(simId)?.companyId,
+    companyId: resolvedCompanyId,
     title: 'New Certificate Request',
     message: `Student ${studentId} has requested a certificate for simulation ${simId}`,
     data: { requestId: request.id, simId, studentId },
@@ -401,4 +403,286 @@ export const getSubmissionsByCompany = (companyId) => {
 
 export const getAllCompanies = () => {
   return companies;
+};
+
+const mapSimulationRow = (row) => ({
+  id: row.id,
+  companyId: row.company_id,
+  title: row.title,
+  description: row.description,
+  tags: row.tags || [],
+  difficulty: row.difficulty,
+  duration: row.duration,
+  status: row.status,
+  stages: row.stages || [],
+  version: row.version || 1,
+  templateLevel: row.template_level || null,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  publishedAt: row.published_at
+});
+
+const mapSubmissionRow = (row) => ({
+  id: row.id,
+  simId: row.sim_id,
+  studentId: row.student_id,
+  submissionData: row.submission_data || {},
+  submittedAt: row.submitted_at,
+  status: row.status
+});
+
+export const getSimulationsFromDB = async (filters = {}) => {
+  if (!supabase) return getSimulations(filters);
+
+  let query = supabase
+    .from('simulations')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (filters.status) query = query.eq('status', filters.status);
+  if (filters.companyId) query = query.eq('company_id', filters.companyId);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('Error loading simulations:', error);
+    return getSimulations(filters);
+  }
+
+  return (data || []).map(mapSimulationRow);
+};
+
+export const getSimulationByIdFromDB = async (id) => {
+  if (!supabase) return getSimulationById(id);
+
+  const { data, error } = await supabase
+    .from('simulations')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    if (error.code !== 'PGRST116') {
+      console.error('Error loading simulation by id:', error);
+    }
+    return getSimulationById(id);
+  }
+
+  return mapSimulationRow(data);
+};
+
+export const createBlankSimulationInDB = async (companyId) => {
+  if (!supabase) return createBlankSimulation(companyId);
+
+  const now = new Date().toISOString();
+  const simulationId = `sim-${Date.now()}`;
+  const defaultStageId = `stage-${Date.now()}`;
+  const defaultBlockId = `block-${Date.now()}`;
+
+  const payload = {
+    id: simulationId,
+    company_id: companyId,
+    title: 'New Simulation',
+    description: 'Add a description for your simulation',
+    tags: [],
+    difficulty: 'Beginner',
+    duration: '30-45 mins',
+    status: 'draft',
+    version: 1,
+    stages: [
+      {
+        id: defaultStageId,
+        title: 'Introduction',
+        blocks: [
+          {
+            id: defaultBlockId,
+            type: 'richText',
+            data: {
+              content: '<h2>Welcome to Your New Simulation</h2><p>Start building your simulation by adding blocks using the buttons on the right.</p>'
+            }
+          }
+        ]
+      }
+    ],
+    created_at: now,
+    updated_at: now,
+    published_at: null,
+    template_level: null
+  };
+
+  const { data, error } = await supabase
+    .from('simulations')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating blank simulation:', error);
+    throw error;
+  }
+
+  return mapSimulationRow(data);
+};
+
+export const createSimulationFromFixedTemplateInDB = async (templateId, companyId) => {
+  if (!supabase) return createSimulationFromFixedTemplate(templateId, companyId);
+
+  const template = fixedTemplates.find(t => t.id === templateId);
+  if (!template) throw new Error('Template not found');
+
+  const now = new Date().toISOString();
+  const payload = {
+    id: `sim-${Date.now()}`,
+    company_id: companyId,
+    title: template.title,
+    description: template.description,
+    tags: template.tags || [],
+    difficulty: template.difficulty || 'Beginner',
+    duration: template.duration || '30-45 mins',
+    status: 'draft',
+    version: 1,
+    stages: template.stages || [],
+    template_level: template.level || null,
+    created_at: now,
+    updated_at: now,
+    published_at: null
+  };
+
+  const { data, error } = await supabase
+    .from('simulations')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating simulation from template:', error);
+    throw error;
+  }
+
+  return mapSimulationRow(data);
+};
+
+export const updateSimulationInDB = async (simulation) => {
+  if (!supabase) return updateSimulation(simulation);
+
+  const payload = {
+    company_id: simulation.companyId,
+    title: simulation.title,
+    description: simulation.description,
+    tags: simulation.tags || [],
+    difficulty: simulation.difficulty,
+    duration: simulation.duration,
+    status: simulation.status,
+    stages: simulation.stages || [],
+    version: simulation.version || 1,
+    template_level: simulation.templateLevel || null,
+    updated_at: new Date().toISOString(),
+    published_at: simulation.publishedAt || null
+  };
+
+  const { data, error } = await supabase
+    .from('simulations')
+    .update(payload)
+    .eq('id', simulation.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating simulation:', error);
+    throw error;
+  }
+
+  return mapSimulationRow(data);
+};
+
+export const publishSimulationInDB = async (id) => {
+  if (!supabase) return publishSimulation(id);
+
+  const publishedAt = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('simulations')
+    .update({
+      status: 'published',
+      published_at: publishedAt,
+      updated_at: publishedAt
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error publishing simulation:', error);
+    throw error;
+  }
+
+  return mapSimulationRow(data);
+};
+
+export const deleteSimulationInDB = async (id) => {
+  if (!supabase) {
+    deleteSimulation(id);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('simulations')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting simulation:', error);
+    throw error;
+  }
+};
+
+export const saveSubmissionInDB = async (simId, studentId, submissionData) => {
+  if (!supabase) return saveSubmission(simId, studentId, submissionData);
+
+  const payload = {
+    id: `sub-${Date.now()}`,
+    sim_id: simId,
+    student_id: studentId,
+    submission_data: submissionData,
+    status: 'submitted',
+    submitted_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from('simulation_submissions')
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error saving submission:', error);
+    throw error;
+  }
+
+  return mapSubmissionRow(data);
+};
+
+export const getSubmissionsByCompanyFromDB = async (companyId) => {
+  if (!supabase) return getSubmissionsByCompany(companyId);
+
+  const simulations = await getSimulationsFromDB({ companyId });
+  const simulationMap = new Map(simulations.map((sim) => [sim.id, sim]));
+  const simIds = simulations.map((sim) => sim.id);
+
+  if (simIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('simulation_submissions')
+    .select('*')
+    .in('sim_id', simIds)
+    .order('submitted_at', { ascending: false });
+
+  if (error) {
+    console.error('Error loading submissions by company from DB:', error);
+    return getSubmissionsByCompany(companyId);
+  }
+
+  return (data || []).map((row) => ({
+    ...mapSubmissionRow(row),
+    simulationTitle: simulationMap.get(row.sim_id)?.title,
+    simulationDifficulty: simulationMap.get(row.sim_id)?.difficulty
+  }));
 };

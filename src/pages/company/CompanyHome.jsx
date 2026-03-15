@@ -1,35 +1,47 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getSimulations, getCertificateRequestsByCompany } from '../../services/storage';
+import { getSimulationsFromDB, getCertificateRequestsByCompany, getSubmissionsByCompanyFromDB } from '../../services/storage';
+import { useAuth } from '../../contexts/AuthContext';
 import './Company.css';
 
-const COMPANY_ID = 'company-1';
-
 function CompanyHome() {
+  const { user, profile } = useAuth();
+  const COMPANY_ID = profile?.id || 'company-1';
+  const companyName = profile?.company_name || 'Your Company';
+
   const [stats, setStats] = useState({
     total: 0,
     published: 0,
     draft: 0,
-    pendingReviews: 0
+    pendingReviews: 0,
+    totalParticipants: 0,
+    completedUsers: 0
   });
 
   useEffect(() => {
-    const sims = getSimulations({ companyId: COMPANY_ID });
-    const requests = getCertificateRequestsByCompany(COMPANY_ID);
-    
-    setStats({
-      total: sims.length,
-      published: sims.filter(s => s.status === 'published').length,
-      draft: sims.filter(s => s.status === 'draft').length,
-      pendingReviews: requests.filter(r => r.status === 'pending').length
-    });
-  }, []);
+    const loadStats = async () => {
+      const sims = await getSimulationsFromDB({ companyId: COMPANY_ID });
+      const requests = getCertificateRequestsByCompany(COMPANY_ID);
+      const submissions = await getSubmissionsByCompanyFromDB(COMPANY_ID);
+      
+      setStats({
+        total: sims.length,
+        published: sims.filter(s => s.status === 'published').length,
+        draft: sims.filter(s => s.status === 'draft').length,
+        pendingReviews: requests.filter(r => r.status === 'pending').length,
+        totalParticipants: submissions.length,
+        completedUsers: submissions.filter(s => s.status === 'submitted').length
+      });
+    };
+
+    loadStats();
+  }, [COMPANY_ID]);
 
   return (
     <div className="company-page">
       <div className="page-header">
         <div>
-          <h1>Company Dashboard</h1>
+          <h1>Welcome, {companyName}</h1>
           <p className="page-subtitle">Manage your hiring simulations and candidate pipeline</p>
         </div>
         <div className="header-actions">
@@ -71,6 +83,20 @@ function CompanyHome() {
             <span className="stat-number" style={{ color: stats.pendingReviews > 0 ? '#ef4444' : '#0f172a' }}>{stats.pendingReviews}</span>
           </div>
         </div>
+        <div className="analytics-stat-card">
+          <div className="stat-icon">👥</div>
+          <div className="stat-content">
+            <span className="stat-label">Total Participants</span>
+            <span className="stat-number">{stats.totalParticipants}</span>
+          </div>
+        </div>
+        <div className="analytics-stat-card">
+          <div className="stat-icon" style={{ background: '#ecfdf5', color: '#059669' }}>🏆</div>
+          <div className="stat-content">
+            <span className="stat-label">Talent Pool</span>
+            <span className="stat-number" style={{ color: '#059669' }}>{stats.completedUsers}</span>
+          </div>
+        </div>
       </div>
 
       <div className="quick-actions">
@@ -97,6 +123,12 @@ function CompanyHome() {
             <div className="action-icon" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>👥</div>
             <h3 style={{ color: '#0f172a', fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: '700' }}>Review Candidates</h3>
             <p style={{ color: '#64748b', margin: 0, lineHeight: 1.5 }}>Review submissions and approve certificate requests.</p>
+          </Link>
+          
+          <Link to="/company/talent-pool" className="action-card" style={{ background: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textDecoration: 'none', transition: 'all 0.3s ease' }}>
+            <div className="action-icon" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🏆</div>
+            <h3 style={{ color: '#0f172a', fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: '700' }}>Talent Pool</h3>
+            <p style={{ color: '#64748b', margin: 0, lineHeight: 1.5 }}>View potential employees who completed your simulations.</p>
           </Link>
         </div>
       </div>

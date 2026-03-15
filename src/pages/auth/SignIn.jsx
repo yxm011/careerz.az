@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
@@ -7,44 +7,44 @@ import './Auth.css';
 
 function SignIn() {
   const navigate = useNavigate();
-  const { signIn, profile } = useAuth();
+  const { signIn, user, profile, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Auto-redirect once user is logged in and profile is loaded
+  useEffect(() => {
+    if (user && profile && !authLoading) {
+      const role = profile.role;
+      if (role === 'company') {
+        navigate('/company', { replace: true });
+      } else if (role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/student/dashboard', { replace: true });
+      }
+    }
+  }, [user, profile, authLoading, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const { data, error } = await signIn(email, password);
-    
-    if (error) {
-      setError(error.message);
+    try {
+      const { error } = await signIn(email, password);
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      // Don't navigate here - useEffect will handle it once profile loads
+    } catch (err) {
+      setError(err?.message || 'Sign in failed. Please try again.');
       setLoading(false);
-    } else {
-      // role-based redirect happens via profile load in AuthContext
-      // we use a short delay to let profile load, then redirect
-      setTimeout(async () => {
-        const { supabase } = await import('../../lib/supabase');
-        if (supabase && data?.user) {
-          const { data: prof } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-          if (prof?.role === 'company') {
-            navigate('/company');
-          } else if (prof?.role === 'admin') {
-            navigate('/admin');
-          } else {
-            navigate('/student/dashboard');
-          }
-        } else {
-          navigate('/student/dashboard');
-        }
-      }, 300);
     }
   };
 

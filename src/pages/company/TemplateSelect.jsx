@@ -1,18 +1,23 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createSimulationFromFixedTemplate, createBlankSimulation } from '../../services/storage';
+import { createSimulationFromFixedTemplateInDB, createBlankSimulationInDB } from '../../services/storage';
+import { useAuth } from '../../contexts/AuthContext';
 import { fixedTemplates } from '../../data/fixedTemplates';
 import './Company.css';
 
-const COMPANY_ID = 'company-1';
-
 function TemplateSelect() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const companyId = profile?.id;
   const templates = fixedTemplates;
 
-  const handleSelectTemplate = (templateId) => {
+  const handleSelectTemplate = async (templateId) => {
+    if (!companyId) {
+      alert('Company profile not loaded yet. Please try again.');
+      return;
+    }
+
     try {
-      const newSim = createSimulationFromFixedTemplate(templateId, COMPANY_ID);
+      const newSim = await createSimulationFromFixedTemplateInDB(templateId, companyId);
       navigate(`/company/simulations/${newSim.id}/edit`);
     } catch (error) {
       console.error('Error creating simulation from template:', error);
@@ -20,12 +25,14 @@ function TemplateSelect() {
     }
   };
 
-  const handleCreateBlank = () => {
+  const handleCreateBlank = async () => {
+    if (!companyId) {
+      alert('Company profile not loaded yet. Please try again.');
+      return;
+    }
+
     try {
-      console.log('Creating blank simulation...');
-      const newSim = createBlankSimulation(COMPANY_ID);
-      console.log('Created simulation:', newSim);
-      console.log('Navigating to:', `/company/simulations/${newSim.id}/edit`);
+      const newSim = await createBlankSimulationInDB(companyId);
       navigate(`/company/simulations/${newSim.id}/edit`);
     } catch (error) {
       console.error('Error creating blank simulation:', error);

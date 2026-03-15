@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationById, updateSimulation, publishSimulation } from '../../services/storage';
+import { getSimulationByIdFromDB, updateSimulationInDB, publishSimulationInDB } from '../../services/storage';
 import BlockRenderer from '../../components/BlockRenderer';
 import RichTextEditor from '../../components/RichTextEditor';
 import './SimulationBuilder.css';
@@ -12,28 +12,51 @@ function SimulationBuilder() {
   const [editingStageIndex, setEditingStageIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedback, setFeedback] = useState({ rating: 0, easeOfUse: '', suggestions: '' });
   const addingBlockRef = useRef(false);
 
   useEffect(() => {
-    const sim = getSimulationById(id);
-    if (!sim) {
-      navigate('/company/simulations');
-      return;
-    }
-    setSimulation(sim);
+    const loadSimulation = async () => {
+      const sim = await getSimulationByIdFromDB(id);
+      if (!sim) {
+        navigate('/company/simulations');
+        return;
+      }
+      setSimulation(sim);
+    };
+
+    loadSimulation();
   }, [id, navigate]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
-    updateSimulation(simulation);
+    await updateSimulationInDB(simulation);
     setTimeout(() => setSaving(false), 500);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (window.confirm('Publish this simulation? It will be visible to all students.')) {
-      publishSimulation(id);
-      navigate('/company/simulations');
+      await publishSimulationInDB(id);
+      setShowFeedback(true);
     }
+  };
+
+  const handleFeedbackSubmit = () => {
+    // Store feedback in localStorage for now
+    const allFeedback = JSON.parse(localStorage.getItem('COMPANY_FEEDBACK') || '[]');
+    allFeedback.push({
+      simulationId: id,
+      simulationTitle: simulation?.title,
+      ...feedback,
+      submittedAt: new Date().toISOString()
+    });
+    localStorage.setItem('COMPANY_FEEDBACK', JSON.stringify(allFeedback));
+    navigate('/company/simulations');
+  };
+
+  const handleSkipFeedback = () => {
+    navigate('/company/simulations');
   };
 
   const handleMetadataChange = (field, value) => {
@@ -210,6 +233,68 @@ function SimulationBuilder() {
   }
 
   const currentStage = simulation.stages[editingStageIndex];
+
+  if (showFeedback) {
+    return (
+      <div className="feedback-overlay">
+        <div className="feedback-modal">
+          <div className="feedback-header">
+            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🎉</div>
+            <h2>Simulation Published!</h2>
+            <p>Help us improve — how was your experience creating this simulation?</p>
+          </div>
+          <div className="feedback-body">
+            <div className="feedback-field">
+              <label>Overall Experience</label>
+              <div className="rating-stars">
+                {[1, 2, 3, 4, 5].map(star => (
+                  <button
+                    key={star}
+                    className={`star-btn ${feedback.rating >= star ? 'active' : ''}`}
+                    onClick={() => setFeedback(f => ({ ...f, rating: star }))}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="feedback-field">
+              <label>How easy was the builder to use?</label>
+              <div className="ease-options">
+                {['Very Easy', 'Easy', 'Neutral', 'Difficult'].map(opt => (
+                  <button
+                    key={opt}
+                    className={`ease-btn ${feedback.easeOfUse === opt ? 'active' : ''}`}
+                    onClick={() => setFeedback(f => ({ ...f, easeOfUse: opt }))}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="feedback-field">
+              <label>Any suggestions for improvement?</label>
+              <textarea
+                value={feedback.suggestions}
+                onChange={(e) => setFeedback(f => ({ ...f, suggestions: e.target.value }))}
+                placeholder="Tell us what could be better..."
+                rows={3}
+                className="input"
+              />
+            </div>
+          </div>
+          <div className="feedback-actions">
+            <button onClick={handleSkipFeedback} className="btn btn-outline">
+              Skip
+            </button>
+            <button onClick={handleFeedbackSubmit} className="btn btn-primary">
+              Submit Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="simulation-builder">

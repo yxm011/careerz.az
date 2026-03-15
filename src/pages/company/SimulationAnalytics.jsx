@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationById, getSubmissionsByCompany } from '../../services/storage';
+import { getSimulationByIdFromDB, getSubmissionsByCompanyFromDB } from '../../services/storage';
+import { useAuth } from '../../contexts/AuthContext';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -29,31 +30,32 @@ ChartJS.register(
   Filler
 );
 
-const COMPANY_ID = 'company-1';
-
 function SimulationAnalytics() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const companyId = profile?.id;
   const [simulation, setSimulation] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, [id]);
+  }, [id, companyId]);
 
-  const loadData = () => {
+  const loadData = async () => {
+    if (!companyId) return;
     setLoading(true);
-    const sim = getSimulationById(id);
+    const sim = await getSimulationByIdFromDB(id);
     
-    if (!sim || sim.companyId !== COMPANY_ID) {
+    if (!sim || sim.companyId !== companyId) {
       navigate('/company/simulations');
       return;
     }
     
     setSimulation(sim);
     
-    const allSubmissions = getSubmissionsByCompany(COMPANY_ID);
+    const allSubmissions = await getSubmissionsByCompanyFromDB(companyId);
     const simSubmissions = allSubmissions.filter(s => s.simId === id);
     setSubmissions(simSubmissions);
     

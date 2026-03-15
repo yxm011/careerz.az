@@ -536,3 +536,18 @@
     padding: 1.5rem;
   }
 }
+
+/* Company preview notice */
+.company-preview-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}

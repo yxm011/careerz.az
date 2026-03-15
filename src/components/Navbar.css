@@ -168,6 +168,72 @@
   border-color: #d1d5db;
 }
 
+/* Company navbar accent */
+.navbar--company {
+  border-bottom-color: #7c3aed;
+  box-shadow: 0 1px 3px 0 rgba(124, 58, 237, 0.12);
+}
+
+.navbar--company .navbar-logo {
+  color: #7c3aed;
+}
+
+.navbar--company .navbar-logo:hover {
+  color: #6d28d9;
+}
+
+.navbar--company .navbar-link:hover,
+.navbar--company .navbar-link.active {
+  color: #7c3aed;
+}
+
+.navbar--company .navbar-link::after {
+  background: #7c3aed;
+}
+
+/* Role badge */
+.navbar-role-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 0.45rem;
+  vertical-align: middle;
+}
+
+.navbar-role-badge--company {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.navbar-role-badge--student {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Quick-create button for companies */
+.btn-create-sim {
+  padding: 0.4rem 1rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+  white-space: nowrap;
+}
+
+.btn-create-sim:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
 @media (max-width: 1024px) {
   .navbar-menu {
     gap: 1.25rem;
@@ -222,5 +288,14 @@
   
   .navbar-logo {
     font-size: 1.25rem;
+  }
+
+  .btn-create-sim {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .navbar-role-badge {
+    display: none;
   }
  }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getSimulationById, getCompanyById } from '../../services/storage';
+import { getSimulationByIdFromDB, getCompanyById } from '../../services/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -9,20 +9,25 @@ import './SimulationOverview.css';
 function SimulationOverview() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isCompany = profile?.role === 'company';
   const [simulation, setSimulation] = useState(null);
   const [company, setCompany] = useState(null);
 
   useEffect(() => {
-    const sim = getSimulationById(id);
-    if (!sim) {
-      navigate('/explore');
-      return;
-    }
-    setSimulation(sim);
+    const loadSimulation = async () => {
+      const sim = await getSimulationByIdFromDB(id);
+      if (!sim) {
+        navigate('/explore');
+        return;
+      }
+      setSimulation(sim);
 
-    const comp = getCompanyById(sim.companyId);
-    setCompany(comp);
+      const comp = getCompanyById(sim.companyId);
+      setCompany(comp);
+    };
+
+    loadSimulation();
   }, [id, navigate]);
 
   if (!simulation) {
@@ -112,10 +117,16 @@ function SimulationOverview() {
                 ))}
               </div>
 
-              <button onClick={handleStartSimulation} className="btn-start-simulation">
-                {user ? 'Start Simulation' : 'Sign Up to Start'}
-                <span className="btn-arrow">→</span>
-              </button>
+              {isCompany ? (
+                <div className="company-preview-notice">
+                  <span>👁️</span> You are viewing this as an enterprise user (preview only)
+                </div>
+              ) : (
+                <button onClick={handleStartSimulation} className="btn-start-simulation">
+                  {user ? 'Start Simulation' : 'Sign Up to Start'}
+                  <span className="btn-arrow">→</span>
+                </button>
+              )}
             </div>
 
             {company && (
@@ -246,10 +257,12 @@ function SimulationOverview() {
         <div className="overview-cta">
           <h2>Ready to Start?</h2>
           <p>Join thousands of students gaining real work experience</p>
-          <button onClick={handleStartSimulation} className="btn-start-simulation btn-lg">
-            {user ? 'Start Simulation Now' : 'Sign Up to Get Started'}
-            <span className="btn-arrow">→</span>
-          </button>
+          {!isCompany && (
+            <button onClick={handleStartSimulation} className="btn-start-simulation btn-lg">
+              {user ? 'Start Simulation Now' : 'Sign Up to Get Started'}
+              <span className="btn-arrow">→</span>
+            </button>
+          )}
         </div>
       </div>
 

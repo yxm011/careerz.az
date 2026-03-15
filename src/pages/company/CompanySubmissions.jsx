@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSubmissionsByCompany, getCertificateRequestsByCompany } from '../../services/storage';
+import { getSubmissionsByCompanyFromDB, getCertificateRequestsByCompany } from '../../services/storage';
+import { useAuth } from '../../contexts/AuthContext';
 import './Company.css';
-
-const COMPANY_ID = 'company-1';
 
 function CompanySubmissions() {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const COMPANY_ID = profile?.id || 'company-1';
+
   const [submissions, setSubmissions] = useState([]);
   const [certificateRequests, setCertificateRequests] = useState([]);
-  const [filter, setFilter] = useState('all'); // all, pending, reviewed
+  const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [COMPANY_ID]);
 
-  const loadData = () => {
-    const subs = getSubmissionsByCompany(COMPANY_ID);
+  const loadData = async () => {
+    const subs = await getSubmissionsByCompanyFromDB(COMPANY_ID);
     const certReqs = getCertificateRequestsByCompany(COMPANY_ID);
     setSubmissions(subs);
     setCertificateRequests(certReqs);
@@ -26,7 +29,6 @@ function CompanySubmissions() {
   const getFilteredSubmissions = () => {
     let filtered = submissions;
 
-    // Filter by certificate request status
     if (filter === 'pending') {
       filtered = filtered.filter(sub => {
         const certReq = certificateRequests.find(req => req.submissionId === sub.id);
@@ -39,7 +41,6 @@ function CompanySubmissions() {
       });
     }
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(sub => 
         sub.simulationTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,15 +55,29 @@ function CompanySubmissions() {
     return certificateRequests.find(req => req.submissionId === submissionId);
   };
 
-  const handleViewSubmission = (submission) => {
-    navigate(`/company/submissions/${submission.id}`);
-  };
-
   const handleReviewCertificate = (submission) => {
     const certReq = getCertificateRequestForSubmission(submission.id);
     if (certReq) {
       navigate(`/company/certificates/${certReq.id}`);
     }
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const renderAnswerValue = (value) => {
+    if (!value) return <span className="answer-empty">No answer provided</span>;
+    if (typeof value === 'string') return <p className="answer-text">{value}</p>;
+    if (Array.isArray(value)) {
+      return (
+        <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#0f172a', fontSize: '0.9rem' }}>
+          {value.map((item, i) => <li key={i}>{typeof item === 'object' ? JSON.stringify(item) : String(item)}</li>)}
+        </ul>
+      );
+    }
+    if (typeof value === 'object') return <pre className="answer-json">{JSON.stringify(value, null, 2)}</pre>;
+    return <p className="answer-text">{String(value)}</p>;
   };
 
   const filteredSubmissions = getFilteredSubmissions();
@@ -72,8 +87,8 @@ function CompanySubmissions() {
     <div className="company-page">
       <div className="page-header">
         <div>
-          <h1>Student Submissions</h1>
-          <p className="page-subtitle">Review student work and manage certificate requests</p>
+          <h1>Candidate Submissions</h1>
+          <p className="page-subtitle">Review answers, uploaded files, and manage certificate requests</p>
         </div>
         {pendingCount > 0 && (
           <div className="notification-badge">
@@ -86,7 +101,7 @@ function CompanySubmissions() {
         <div className="search-box">
           <input
             type="text"
-            placeholder="Search by simulation or student ID..."
+            placeholder="Search by simulation or candidate..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -97,7 +112,7 @@ function CompanySubmissions() {
             className={`tab ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            All Submissions ({submissions.length})
+            All ({submissions.length})
           </button>
           <button 
             className={`tab ${filter === 'pending' ? 'active' : ''}`}
@@ -114,7 +129,7 @@ function CompanySubmissions() {
         </div>
       </div>
 
-      <div className="submissions-grid">
+      <div className="talent-pool-list">
         {filteredSubmissions.length === 0 ? (
           <div className="empty-state">
             <p>No submissions found.</p>
@@ -122,66 +137,85 @@ function CompanySubmissions() {
         ) : (
           filteredSubmissions.map(submission => {
             const certReq = getCertificateRequestForSubmission(submission.id);
+            const answers = submission.submissionData || {};
+            const isExpanded = expandedId === submission.id;
+
             return (
-              <div key={submission.id} className="submission-card">
-                <div className="submission-header">
-                  <div>
-                    <h3>{submission.simulationTitle}</h3>
-                    <p className="submission-meta">
-                      Student ID: {submission.studentId}
-                    </p>
-                  </div>
-                  <span className={`difficulty-badge ${submission.simulationDifficulty?.toLowerCase()}`}>
-                    {submission.simulationDifficulty}
-                  </span>
-                </div>
-
-                <div className="submission-info">
-                  <div className="info-item">
-                    <span className="info-label">Submitted:</span>
-                    <span className="info-value">
-                      {new Date(submission.submittedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Status:</span>
-                    <span className="info-value">
-                      {submission.status === 'submitted' ? 'Completed' : submission.status}
-                    </span>
-                  </div>
-                </div>
-
-                {certReq && (
-                  <div className={`certificate-request-status ${certReq.status}`}>
-                    <div className="status-indicator">
-                      {certReq.status === 'pending' && '⏳ Certificate Request Pending'}
-                      {certReq.status === 'approved' && '✓ Certificate Approved'}
-                      {certReq.status === 'rejected' && '✗ Certificate Rejected'}
+              <div key={submission.id} className="talent-card">
+                <div className="talent-card-header" onClick={() => toggleExpand(submission.id)}>
+                  <div className="talent-info">
+                    <div className="talent-avatar">
+                      {submission.studentId?.charAt(0)?.toUpperCase() || '?'}
                     </div>
-                    {certReq.status === 'pending' && (
-                      <p className="status-date">
-                        Requested {new Date(certReq.requestedAt).toLocaleDateString()}
-                      </p>
+                    <div>
+                      <h3 className="talent-name">{submission.simulationTitle}</h3>
+                      <p className="talent-meta">Candidate: {submission.studentId?.slice(-8) || 'Unknown'}</p>
+                    </div>
+                  </div>
+                  <div className="talent-right">
+                    <div className="talent-details">
+                      <span className={`difficulty-badge ${submission.simulationDifficulty?.toLowerCase()}`}>
+                        {submission.simulationDifficulty}
+                      </span>
+                      <span className="talent-date">
+                        {new Date(submission.submittedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <span className="expand-arrow">{isExpanded ? '▲' : '▼'}</span>
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="talent-expanded">
+                    {certReq && (
+                      <div className="talent-section">
+                        <h4>Certificate Status</h4>
+                        <div className={`certificate-request-status ${certReq.status}`}>
+                          <div className="status-indicator">
+                            {certReq.status === 'pending' && '⏳ Certificate Request Pending'}
+                            {certReq.status === 'approved' && '✓ Certificate Approved'}
+                            {certReq.status === 'rejected' && '✗ Certificate Rejected'}
+                          </div>
+                        </div>
+                        {certReq.status === 'pending' && (
+                          <button 
+                            onClick={() => handleReviewCertificate(submission)}
+                            className="btn btn-primary"
+                            style={{ marginTop: '0.75rem' }}
+                          >
+                            Review Certificate Request
+                          </button>
+                        )}
+                      </div>
                     )}
+
+                    <div className="talent-section">
+                      <h4>Contact Information</h4>
+                      <div className="contact-grid">
+                        <div className="contact-item">
+                          <span className="contact-label">User ID</span>
+                          <span className="contact-value">{submission.studentId}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="talent-section">
+                      <h4>Answers & Uploaded Files</h4>
+                      {Object.keys(answers).length === 0 ? (
+                        <p className="empty-text" style={{ color: '#94a3b8' }}>No detailed answers recorded for this submission.</p>
+                      ) : (
+                        <div className="answers-list">
+                          {Object.entries(answers).map(([blockId, value]) => (
+                            <div key={blockId} className="answer-item">
+                              <span className="answer-label">Task: {blockId}</span>
+                              {renderAnswerValue(value)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-
-                <div className="submission-actions">
-                  <button 
-                    onClick={() => handleViewSubmission(submission)}
-                    className="btn btn-outline"
-                  >
-                    View Submission
-                  </button>
-                  {certReq && certReq.status === 'pending' && (
-                    <button 
-                      onClick={() => handleReviewCertificate(submission)}
-                      className="btn btn-primary"
-                    >
-                      Review Certificate Request
-                    </button>
-                  )}
-                </div>
               </div>
             );
           })

@@ -27,6 +27,8 @@ import CompanySubscription from './pages/company/CompanySubscription';
 import TemplateSelect from './pages/company/TemplateSelect';
 import SimulationBuilder from './pages/company/SimulationBuilder';
 import SimulationAnalytics from './pages/company/SimulationAnalytics';
+import TalentPool from './pages/company/TalentPool';
+import CompanyProfileSettings from './pages/company/CompanyProfileSettings';
 
 import AdminHome from './pages/admin/AdminHome';
 import AdminTemplates from './pages/admin/AdminTemplates';
@@ -81,6 +83,8 @@ function App() {
           <Route path="submissions" element={<CompanySubmissions />} />
           <Route path="certificates/:requestId" element={<CertificateReview />} />
           <Route path="subscription" element={<CompanySubscription />} />
+          <Route path="talent-pool" element={<TalentPool />} />
+          <Route path="profile" element={<CompanyProfileSettings />} />
         </Route>
         
         <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>

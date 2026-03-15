@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationById, saveSubmission, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
+import { getSimulationByIdFromDB, saveSubmissionInDB, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
 import { loadProgress, saveProgress, markCompleted } from '../../services/progressService';
 import { useAuth } from '../../contexts/AuthContext';
 import BlockRenderer from '../../components/BlockRenderer';
@@ -22,28 +22,32 @@ function SimulationPlayer() {
   const [requestingCertificate, setRequestingCertificate] = useState(false);
 
   useEffect(() => {
-    const sim = getSimulationById(id);
-    if (!sim) {
-      navigate('/explore');
-      return;
-    }
-    setSimulation(sim);
-
-    if (user) {
-      loadProgress(user.id, id).then(progress => {
-        if (progress) {
-          setCurrentStageIndex(progress.current_stage_index || 0);
-          setCurrentStepIndex(progress.current_step_index || 0);
-          setAnswers(progress.answers || {});
-          setCompleted(progress.completed || false);
-        }
-      });
-
-      const existingRequest = getCertificateRequest(id, user.id);
-      if (existingRequest) {
-        setCertificateRequest(existingRequest);
+    const loadSimulation = async () => {
+      const sim = await getSimulationByIdFromDB(id);
+      if (!sim) {
+        navigate('/explore');
+        return;
       }
-    }
+      setSimulation(sim);
+
+      if (user) {
+        loadProgress(user.id, id).then(progress => {
+          if (progress) {
+            setCurrentStageIndex(progress.current_stage_index || 0);
+            setCurrentStepIndex(progress.current_step_index || 0);
+            setAnswers(progress.answers || {});
+            setCompleted(progress.completed || false);
+          }
+        });
+
+        const existingRequest = getCertificateRequest(id, user.id);
+        if (existingRequest) {
+          setCertificateRequest(existingRequest);
+        }
+      }
+    };
+
+    loadSimulation();
   }, [id, navigate, user]);
 
   const handleAnswerChange = (blockId, value) => {
@@ -123,7 +127,7 @@ function SimulationPlayer() {
     if (window.confirm('Are you sure you want to submit this simulation? You cannot make changes after submission.')) {
       if (user) {
         await markCompleted(user.id, id, answers);
-        saveSubmission(id, user.id, { answers, submittedAt: new Date().toISOString() });
+        await saveSubmissionInDB(id, user.id, { answers, submittedAt: new Date().toISOString() });
       }
       setCompleted(true);
       window.scrollTo(0, 0);
@@ -150,7 +154,7 @@ function SimulationPlayer() {
     setRequestingCertificate(true);
     try {
       const submissionId = `sub-${Date.now()}`;
-      const request = requestCertificate(id, user.id, submissionId);
+      const request = requestCertificate(id, user.id, submissionId, simulation?.companyId || null);
       setCertificateRequest(request);
       alert('Certificate request submitted! The company will review your work and notify you once approved.');
     } catch (error) {

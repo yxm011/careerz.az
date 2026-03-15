@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getSimulations, getCompanyById } from '../../services/storage';
+import { getSimulationsFromDB, getCompanyById } from '../../services/storage';
 import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
@@ -13,8 +13,12 @@ function Explore() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    const published = getSimulations({ status: 'published' });
-    setSimulations(published);
+    const loadSimulations = async () => {
+      const published = await getSimulationsFromDB({ status: 'published' });
+      setSimulations(published);
+    };
+
+    loadSimulations();
   }, []);
 
   const filteredSimulations = filter === 'all' 

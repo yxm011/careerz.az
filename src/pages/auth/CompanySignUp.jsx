@@ -200,7 +200,7 @@ function CompanySignUp() {
                 <input
                   id="website"
                   name="website"
-                  type="url"
+                  type="text"
                   value={formData.website}
                   onChange={handleChange}
                   placeholder="https://yourcompany.com"

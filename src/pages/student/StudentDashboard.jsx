@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getSimulations, getCompanyById } from '../../services/storage';
+import { getSimulationsFromDB, getCompanyById } from '../../services/storage';
 import { getAllUserProgress } from '../../services/progressService';
 import './StudentDashboard.css';
 
@@ -25,7 +25,7 @@ function StudentDashboard() {
 
   const loadUserProgress = async () => {
     const allProgress = await getAllUserProgress(user.id);
-    const allSims = getSimulations({ status: 'published' });
+    const allSims = await getSimulationsFromDB({ status: 'published' });
 
     const inProgressList = allProgress.filter(p => !p.completed);
     const completedList = allProgress.filter(p => p.completed);
@@ -57,8 +57,8 @@ function StudentDashboard() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    signOut();
+    navigate('/', { replace: true });
   };
 
   const getProgressPercentage = (sim) => sim?.progressPercent || 0;

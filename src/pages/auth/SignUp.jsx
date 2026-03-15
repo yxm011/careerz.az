@@ -174,8 +174,8 @@ function SignUp() {
 
         <div className="auth-illustration">
           <div className="illustration-content">
-            <h2>Join as a Student</h2>
-            <p>Get hands-on experience with simulations from leading companies in Azerbaijan.</p>
+            <h2>Build Real-World Skills</h2>
+            <p>Experience job simulations from leading companies in Azerbaijan and stand out in the job market.</p>
             <div className="feature-list">
               <div className="feature-item">
                 <span className="feature-icon">✓</span>
@@ -183,11 +183,11 @@ function SignUp() {
               </div>
               <div className="feature-item">
                 <span className="feature-icon">✓</span>
-                <span>Personalized learning dashboard</span>
+                <span>Track your progress and achievements</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">✓</span>
-                <span>Industry-recognized certificates</span>
+                <span>Earn certificates from top companies</span>
               </div>
             </div>
           </div>
