@@ -17,27 +17,43 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const emailRedirectTo = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://careerz.az';
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (userId, retries = 3) => {
     if (!supabase || !userId) return null;
-    try {
-      // Just fetch the profile — DB trigger guarantees it exists with correct role
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+    
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        // Just fetch the profile — DB trigger guarantees it exists with correct role
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
 
-      if (data) {
-        return data;
+        if (data) {
+          return data;
+        }
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('fetchProfile error:', error);
+        }
+
+        // Profile not found yet - might be trigger delay, retry
+        if (attempt < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+          continue;
+        }
+      } catch (err) {
+        console.error('fetchProfile error:', err);
+        if (attempt < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+          continue;
+        }
       }
-
-      // Profile missing (shouldn't happen with trigger, but handle gracefully)
-      console.warn('Profile not found for user:', userId);
-      return { id: userId, role: 'student' };
-    } catch (err) {
-      console.error('fetchProfile error:', err);
-      return { id: userId, role: 'student' };
     }
+
+    // After all retries, return fallback
+    console.warn('Profile not found after retries for user:', userId);
+    return { id: userId, role: 'student' };
   };
 
   useEffect(() => {
@@ -86,14 +102,23 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       try {
         if (!isMounted) return;
-        setUser(session?.user ?? null);
+        
         if (session?.user) {
+          // User logged in - fetch profile BEFORE updating state
           const p = await fetchProfile(session.user.id);
-          if (isMounted) setProfile(p);
+          if (isMounted) {
+            setUser(session.user);
+            setProfile(p);
+            setLoading(false);
+          }
         } else {
-          if (isMounted) setProfile(null);
+          // User logged out
+          if (isMounted) {
+            setUser(null);
+            setProfile(null);
+            setLoading(false);
+          }
         }
-        if (isMounted) setLoading(false);
       } catch (err) {
         console.error('onAuthStateChange error:', err);
         if (isMounted) setLoading(false);
@@ -146,13 +171,9 @@ export const AuthProvider = ({ children }) => {
       return { data: { user: demoUser }, error: null };
     }
 
+    // Don't manually set state here - let onAuthStateChange handle it
+    // This prevents race conditions and ensures profile is loaded before rendering
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error && data?.user) {
-      setUser(data.user);
-      const p = await fetchProfile(data.user.id);
-      setProfile(p);
-      setLoading(false);
-    }
     return { data, error };
   };
 
