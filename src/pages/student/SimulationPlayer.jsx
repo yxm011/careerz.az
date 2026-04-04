@@ -272,7 +272,7 @@ function SimulationPlayer() {
             <button onClick={() => navigate('/explore')} className="btn btn-primary btn-lg">
               Explore More Simulations
             </button>
-            <button onClick={() => navigate('/student/dashboard')} className="btn btn-secondary btn-lg">
+            <button onClick={() => navigate('/dashboard')} className="btn btn-secondary btn-lg">
               View Dashboard
             </button>
           </div>

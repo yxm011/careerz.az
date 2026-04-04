@@ -36,7 +36,7 @@ function SimulationBuilder() {
   };
 
   const handlePublish = async () => {
-    if (window.confirm('Publish this simulation? It will be visible to all students.')) {
+    if (window.confirm('Publish this simulation? It will be visible to all users.')) {
       await publishSimulationInDB(id);
       setShowFeedback(true);
     }
@@ -667,7 +667,7 @@ function renderBlockEditor(block, stageIndex, blockIndex, handleBlockChange) {
             rows={3}
             placeholder="Text with [blank] markers"
           />
-          <small>Use [blank] to mark where students should fill in answers</small>
+          <small>Use [blank] to mark where users should fill in answers</small>
         </>
       );
     case 'ordering':

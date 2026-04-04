@@ -28,7 +28,7 @@ function CompanySimulations() {
   };
 
   const handlePublish = async (id) => {
-    if (window.confirm('Publish this simulation? It will be visible to all students.')) {
+    if (window.confirm('Publish this simulation? It will be visible to all users.')) {
       await publishSimulationInDB(id);
       await loadSimulations();
     }

@@ -90,7 +90,7 @@ function SimulationAnalytics() {
     labels: ['90-100%', '80-89%', '70-79%', '60-69%', '<60%'],
     datasets: [
       {
-        label: 'Number of Students',
+        label: 'Number of Users',
         data: [15, 25, 20, 10, 5],
         backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#f97316', '#ef4444']
       }
@@ -173,7 +173,7 @@ function SimulationAnalytics() {
                 <div className="candidate-info">
                   <div className="candidate-avatar">👤</div>
                   <div>
-                    <h4>Student #{sub.studentId}</h4>
+                    <h4>User #{sub.studentId}</h4>
                     <span className="candidate-date">Completed: {new Date(sub.submittedAt).toLocaleDateString()}</span>
                   </div>
                 </div>

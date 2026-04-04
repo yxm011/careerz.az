@@ -43,7 +43,7 @@ function CertificateReview() {
     setSubmitting(true);
     try {
       await reviewCertificateRequest(requestId, 'approved', REVIEWER_ID, reviewNotes);
-      alert('Certificate request approved! The student will be notified.');
+      alert('Certificate request approved! The user will be notified.');
       navigate('/company/submissions');
     } catch (error) {
       alert('Failed to approve request: ' + error.message);
@@ -54,7 +54,7 @@ function CertificateReview() {
 
   const handleReject = async () => {
     if (!reviewNotes.trim()) {
-      alert('Please provide feedback for the student before rejecting.');
+      alert('Please provide feedback for the user before rejecting.');
       return;
     }
 
@@ -65,7 +65,7 @@ function CertificateReview() {
     setSubmitting(true);
     try {
       await reviewCertificateRequest(requestId, 'rejected', REVIEWER_ID, reviewNotes);
-      alert('Certificate request rejected. The student will be notified with your feedback.');
+      alert('Certificate request rejected. The user will be notified with your feedback.');
       navigate('/company/submissions');
     } catch (error) {
       alert('Failed to reject request: ' + error.message);
@@ -83,7 +83,7 @@ function CertificateReview() {
       <div className="page-header">
         <div>
           <h1>Review Certificate Request</h1>
-          <p className="page-subtitle">Evaluate student work and approve or reject certificate request</p>
+          <p className="page-subtitle">Evaluate submitted work and approve or reject certificate request</p>
         </div>
         <button onClick={() => navigate('/company/submissions')} className="btn btn-outline">
           ← Back to Submissions
@@ -93,10 +93,10 @@ function CertificateReview() {
       <div className="review-container">
         <div className="review-main">
           <div className="review-section">
-            <h2>Student Information</h2>
+            <h2>Candidate Information</h2>
             <div className="info-grid">
               <div className="info-item">
-                <span className="info-label">Student ID</span>
+                <span className="info-label">User ID</span>
                 <span className="info-value">{request.studentId}</span>
               </div>
               <div className="info-item">
@@ -125,7 +125,7 @@ function CertificateReview() {
           </div>
 
           <div className="review-section">
-            <h2>Student Submission</h2>
+            <h2>User Submission</h2>
             <div className="submission-preview">
               {request.submission ? (
                 <>
@@ -157,7 +157,7 @@ function CertificateReview() {
           <div className="review-section">
             <h2>Review Notes</h2>
             <p className="section-description">
-              Provide feedback for the student. This will be included in the notification they receive.
+              Provide feedback for the user. This will be included in the notification they receive.
             </p>
             <textarea
               className="review-textarea"

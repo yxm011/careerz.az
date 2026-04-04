@@ -49,7 +49,7 @@ export const en = {
     },
 
     benefits: {
-      title: 'Why Students Choose CAREERZ.AZ',
+      title: 'Why People Choose CAREERZ.AZ',
       item1: {
         title: 'Real Work Experience',
         description: 'Complete tasks that mirror actual job responsibilities at leading companies',
@@ -82,8 +82,8 @@ export const en = {
     },
 
     testimonials: {
-      title: 'What Students Say',
-      subtitle: 'Real stories from students who transformed their careers',
+      title: 'What Our Users Say',
+      subtitle: 'Real stories from people who transformed their careers',
       student1: {
         text: '"I completed the Kapital Bank simulation and it helped me understand what banking analysts actually do. I got an interview within 2 weeks!"',
         name: 'Nigar Hasanova',
@@ -103,7 +103,7 @@ export const en = {
 
     statsSection: {
       students: '2,500+',
-      studentsLabel: 'Active Students',
+      studentsLabel: 'Active Users',
       studentsDesc: 'Building skills every day',
       companies: '50+',
       companiesLabel: 'Partner Companies',
@@ -113,12 +113,12 @@ export const en = {
       simulationsDesc: 'Across multiple industries',
       satisfaction: '95%',
       satisfactionLabel: 'Satisfaction Rate',
-      satisfactionDesc: 'Students love our platform',
+      satisfactionDesc: 'Users love our platform',
     },
 
     cta: {
       title: 'Ready to Build Your Future?',
-      subtitle: 'Join thousands of students gaining real work experience with Azerbaijan\'s top companies. Start your first simulation today - completely free.',
+      subtitle: 'Join thousands of people gaining real work experience with Azerbaijan\'s top companies. Start your first simulation today - completely free.',
       startBtn: 'Get Started Free',
       companyBtn: 'I\'m a Company',
     },
@@ -222,10 +222,10 @@ export const en = {
   // Footer
   footer: {
     tagline: 'Gain real work experience in Azerbaijan',
-    students: 'Students',
+    users: 'Users',
     exploreSimulations: 'Explore Simulations',
     howItWorks: 'How It Works',
-    studentStories: 'Student Stories',
+    successStories: 'Success Stories',
     companies: 'Companies',
     forEnterprise: 'For Enterprise',
     createSimulation: 'Create Simulation',

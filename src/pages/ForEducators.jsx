@@ -11,9 +11,9 @@ function ForEducators() {
       <main className="educators-main">
         <section className="educators-hero">
           <div className="hero-content">
-            <h1>Empower Your Students with Real-World Experience</h1>
+            <h1>Empower Your Learners with Real-World Experience</h1>
             <p className="hero-description">
-              Integrate job simulations into your curriculum and prepare students for successful careers
+              Integrate job simulations into your curriculum and prepare learners for successful careers
             </p>
             <div className="hero-cta">
               <Link to="/contact" className="btn btn-primary btn-lg">
@@ -33,17 +33,17 @@ function ForEducators() {
               <div className="benefit-card">
                 <div className="benefit-icon">🎓</div>
                 <h3>Bridge Theory and Practice</h3>
-                <p>Help students apply classroom knowledge to real-world scenarios from leading companies in Azerbaijan.</p>
+                <p>Help learners apply classroom knowledge to real-world scenarios from leading companies in Azerbaijan.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-icon">📊</div>
-                <h3>Track Student Progress</h3>
-                <p>Monitor student performance, identify strengths and areas for improvement with detailed analytics.</p>
+                <h3>Track Learner Progress</h3>
+                <p>Monitor learner performance, identify strengths and areas for improvement with detailed analytics.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-icon">🤝</div>
                 <h3>Industry Partnerships</h3>
-                <p>Connect your students with top employers through authentic job simulations and recruitment opportunities.</p>
+                <p>Connect your learners with top employers through authentic job simulations and recruitment opportunities.</p>
               </div>
               <div className="benefit-card">
                 <div className="benefit-icon">⚡</div>
@@ -61,7 +61,7 @@ function ForEducators() {
               <div className="step-card">
                 <div className="step-number">1</div>
                 <h3>Create Your Classroom</h3>
-                <p>Set up a virtual classroom and invite your students to join with a simple class code.</p>
+                <p>Set up a virtual classroom and invite your learners to join with a simple class code.</p>
               </div>
               <div className="step-card">
                 <div className="step-number">2</div>
@@ -71,12 +71,12 @@ function ForEducators() {
               <div className="step-card">
                 <div className="step-number">3</div>
                 <h3>Monitor Progress</h3>
-                <p>Track student engagement, completion rates, and performance in real-time through your dashboard.</p>
+                <p>Track learner engagement, completion rates, and performance in real-time through your dashboard.</p>
               </div>
               <div className="step-card">
                 <div className="step-number">4</div>
                 <h3>Provide Feedback</h3>
-                <p>Review student submissions and provide personalized feedback to enhance their learning experience.</p>
+                <p>Review learner submissions and provide personalized feedback to enhance their learning experience.</p>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ function ForEducators() {
             <div className="use-cases-grid">
               <div className="use-case-card">
                 <h3>🏫 Universities & Colleges</h3>
-                <p>Enhance business, IT, and engineering programs with practical simulations that prepare students for their first job.</p>
+                <p>Enhance business, IT, and engineering programs with practical simulations that prepare learners for their first job.</p>
                 <ul>
                   <li>Career preparation courses</li>
                   <li>Capstone projects</li>
@@ -97,7 +97,7 @@ function ForEducators() {
               </div>
               <div className="use-case-card">
                 <h3>🎯 Vocational Schools</h3>
-                <p>Provide hands-on training in specific industries and help students develop job-ready skills.</p>
+                <p>Provide hands-on training in specific industries and help learners develop job-ready skills.</p>
                 <ul>
                   <li>Technical skill development</li>
                   <li>Industry certifications</li>
@@ -106,7 +106,7 @@ function ForEducators() {
               </div>
               <div className="use-case-card">
                 <h3>📚 Career Centers</h3>
-                <p>Support students in exploring career paths and building confidence before entering the job market.</p>
+                <p>Support learners in exploring career paths and building confidence before entering the job market.</p>
                 <ul>
                   <li>Career exploration</li>
                   <li>Interview preparation</li>
@@ -125,14 +125,14 @@ function ForEducators() {
                 <div className="feature-icon">✓</div>
                 <div className="feature-content">
                   <h4>Class Management Dashboard</h4>
-                  <p>Organize students, assign simulations, and track progress all in one place</p>
+                  <p>Organize learners, assign simulations, and track progress all in one place</p>
                 </div>
               </div>
               <div className="feature-item">
                 <div className="feature-icon">✓</div>
                 <div className="feature-content">
                   <h4>Performance Analytics</h4>
-                  <p>Detailed insights into student performance, completion rates, and skill development</p>
+                  <p>Detailed insights into learner performance, completion rates, and skill development</p>
                 </div>
               </div>
               <div className="feature-item">
@@ -152,8 +152,8 @@ function ForEducators() {
               <div className="feature-item">
                 <div className="feature-icon">✓</div>
                 <div className="feature-content">
-                  <h4>Student Feedback Tools</h4>
-                  <p>Provide personalized feedback and guidance on student submissions</p>
+                  <h4>Learner Feedback Tools</h4>
+                  <p>Provide personalized feedback and guidance on learner submissions</p>
                 </div>
               </div>
               <div className="feature-item">
@@ -173,7 +173,7 @@ function ForEducators() {
             <div className="testimonials-grid">
               <div className="testimonial-card">
                 <p className="testimonial-text">
-                  "CAREERZ.AZ has transformed how we prepare students for the job market. 
+                  "CAREERZ.AZ has transformed how we prepare learners for the job market. 
                   The simulations provide real-world context that textbooks simply can't match."
                 </p>
                 <div className="testimonial-author">
@@ -183,7 +183,7 @@ function ForEducators() {
               </div>
               <div className="testimonial-card">
                 <p className="testimonial-text">
-                  "Our students are more confident and better prepared for interviews after 
+                  "Our learners are more confident and better prepared for interviews after 
                   completing simulations. The platform is intuitive and easy to integrate."
                 </p>
                 <div className="testimonial-author">
@@ -193,7 +193,7 @@ function ForEducators() {
               </div>
               <div className="testimonial-card">
                 <p className="testimonial-text">
-                  "The analytics help me identify which students need extra support. 
+                  "The analytics help me identify which learners need extra support. 
                   It's been invaluable for personalizing my teaching approach."
                 </p>
                 <div className="testimonial-author">
@@ -208,7 +208,7 @@ function ForEducators() {
         <section className="cta-section">
           <div className="cta-box">
             <h2>Ready to Get Started?</h2>
-            <p>Join hundreds of educators across Azerbaijan who are preparing students for successful careers</p>
+            <p>Join hundreds of educators across Azerbaijan who are preparing learners for successful careers</p>
             <div className="cta-buttons">
               <Link to="/contact" className="btn btn-primary btn-lg">
                 Request Educator Access

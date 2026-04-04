@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
-import { initializeStorage } from './services/storage';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
@@ -17,7 +15,6 @@ import Explore from './pages/student/Explore';
 import SimulationPlayer from './pages/student/SimulationPlayer';
 import SimulationOverview from './pages/student/SimulationOverview';
 import StudentDashboard from './pages/student/StudentDashboard';
-import Test from './pages/Test';
 
 import CompanyHome from './pages/company/CompanyHome';
 import CompanySimulations from './pages/company/CompanySimulations';
@@ -41,23 +38,11 @@ import CompanySignUp from './pages/auth/CompanySignUp';
 import './App.css';
 
 function App() {
-  useEffect(() => {
-    try {
-      console.log('Initializing storage...');
-      initializeStorage();
-      console.log('Storage initialized successfully');
-    } catch (error) {
-      console.error('Error initializing storage:', error);
-      alert('Error initializing app: ' + error.message);
-    }
-  }, []);
-
   return (
     <AuthProvider>
       <Router>
         <ScrollToTop />
         <Routes>
-          <Route path="/test" element={<Test />} />
           <Route path="/" element={<Landing />} />
           <Route path="/for-companies" element={<ForCompanies />} />
           <Route path="/blog" element={<Blog />} />
@@ -66,8 +51,8 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/company/signup" element={<CompanySignUp />} />
           
-          <Route path="/student" element={<ProtectedRoute requiredRole="student"><StudentLayout /></ProtectedRoute>}>
-            <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="/dashboard" element={<ProtectedRoute requiredRole="student"><StudentLayout /></ProtectedRoute>}>
+            <Route index element={<StudentDashboard />} />
           </Route>
           
           <Route path="/explore" element={<Explore />} />

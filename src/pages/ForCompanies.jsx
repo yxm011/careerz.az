@@ -157,7 +157,7 @@ function ForCompanies() {
               <div className="feature-check">✓</div>
               <div className="feature-text">
                 <h4>Candidate Database</h4>
-                <p>Access profiles of students who completed your simulations</p>
+                <p>Access profiles of users who completed your simulations</p>
               </div>
             </div>
             <div className="feature-item">

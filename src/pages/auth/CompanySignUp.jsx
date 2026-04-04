@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import './Auth.css';
@@ -40,6 +41,8 @@ function CompanySignUp() {
     password: '',
     confirmPassword: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -92,19 +95,15 @@ function CompanySignUp() {
     return (
       <>
         <Navbar />
-        <div className="auth-page">
-          <div className="auth-container" style={{ gridTemplateColumns: '1fr' }}>
-            <div className="auth-card" style={{ textAlign: 'center', maxWidth: 520, margin: '0 auto' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📧</div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>Check your email</h1>
-              <p style={{ color: '#64748b', marginBottom: '0.75rem', lineHeight: 1.6 }}>
-                We sent a confirmation link to <strong>{formData.email}</strong>.
-              </p>
-              <p style={{ color: '#64748b', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Click the link to activate your enterprise account, then sign in to access your company dashboard.
-              </p>
-              <Link to="/signin" className="btn btn-primary btn-lg btn-block">Go to Sign In</Link>
-            </div>
+        <div className="auth-confirmation">
+          <div className="auth-confirmation-card animate-element animate-delay-100">
+            <div className="confirmation-icon">📧</div>
+            <h1>Check your email</h1>
+            <p>
+              We sent a confirmation link to <strong>{formData.email}</strong>.<br />
+              Click the link to activate your enterprise account, then sign in to access your company dashboard.
+            </p>
+            <Link to="/signin" className="btn-go-signin">Go to Sign In</Link>
           </div>
         </div>
         <Footer />
@@ -114,63 +113,68 @@ function CompanySignUp() {
 
   return (
     <>
-      <Navbar />
-      <div className="auth-page">
-        <div className="auth-container auth-container-wide">
-          <div className="auth-card">
-            <div className="auth-header">
-              <div className="auth-role-badge company-badge">Enterprise</div>
-              <h1>Register Your Company</h1>
-              <p>Create simulations and discover talent for your organisation</p>
-            </div>
+    <Navbar />
+    <div className="auth-page">
+      {/* Left: Form */}
+      <section className="auth-form-section" style={{ overflow: 'auto' }}>
+        <div className="auth-form-wrapper" style={{ maxWidth: 520 }}>
+          <div className="animate-element animate-delay-100">
+            <div className="auth-role-badge company-badge">Enterprise</div>
+          </div>
+          <h1 className="auth-title animate-element animate-delay-100">
+            Register <span className="title-light">Your Company</span>
+          </h1>
+          <p className="auth-subtitle animate-element animate-delay-200">
+            Create simulations and discover talent for your organisation
+          </p>
 
-            <form onSubmit={handleSubmit} className="auth-form">
-              {error && (
-                <div className="error-message">
-                  <span className="error-icon">⚠️</span>
-                  {error}
-                </div>
-              )}
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {error && (
+              <div className="error-message">
+                <span className="error-icon">⚠️</span>
+                {error}
+              </div>
+            )}
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="companyName">Company Name *</label>
+            <div className="form-row animate-element animate-delay-300">
+              <div className="form-field">
+                <label>Company Name *</label>
+                <div className="glass-input-wrapper">
                   <input
-                    id="companyName"
                     name="companyName"
                     type="text"
                     value={formData.companyName}
                     onChange={handleChange}
                     placeholder="e.g. SOCAR, ABB Bank"
                     required
-                    className="input"
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="contactName">Contact Person Name *</label>
+              </div>
+              <div className="form-field">
+                <label>Contact Person *</label>
+                <div className="glass-input-wrapper">
                   <input
-                    id="contactName"
                     name="contactName"
                     type="text"
                     value={formData.contactName}
                     onChange={handleChange}
                     placeholder="Your full name"
                     required
-                    className="input"
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="industry">Industry *</label>
+            <div className="form-row animate-element animate-delay-400">
+              <div className="form-field">
+                <label>Industry *</label>
+                <div className="glass-input-wrapper">
                   <select
-                    id="industry"
                     name="industry"
                     value={formData.industry}
                     onChange={handleChange}
                     required
-                    className="input"
+                    style={{ width: '100%', background: 'transparent', fontSize: '0.9375rem', padding: '1rem 1.25rem', borderRadius: '1rem', border: 'none', outline: 'none', color: formData.industry ? '#0f172a' : '#94a3b8' }}
                   >
                     <option value="">Select industry...</option>
                     {INDUSTRIES.map(ind => (
@@ -178,14 +182,15 @@ function CompanySignUp() {
                     ))}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="companySize">Company Size</label>
+              </div>
+              <div className="form-field">
+                <label>Company Size</label>
+                <div className="glass-input-wrapper">
                   <select
-                    id="companySize"
                     name="companySize"
                     value={formData.companySize}
                     onChange={handleChange}
-                    className="input"
+                    style={{ width: '100%', background: 'transparent', fontSize: '0.9375rem', padding: '1rem 1.25rem', borderRadius: '1rem', border: 'none', outline: 'none', color: formData.companySize ? '#0f172a' : '#94a3b8' }}
                   >
                     <option value="">Select size...</option>
                     {COMPANY_SIZES.map(size => (
@@ -194,111 +199,100 @@ function CompanySignUp() {
                   </select>
                 </div>
               </div>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="website">Company Website</label>
+            <div className="form-field animate-element animate-delay-500">
+              <label>Company Website</label>
+              <div className="glass-input-wrapper">
                 <input
-                  id="website"
                   name="website"
                   type="text"
                   value={formData.website}
                   onChange={handleChange}
                   placeholder="https://yourcompany.com"
-                  className="input"
                 />
               </div>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="email">Work Email Address *</label>
+            <div className="form-field animate-element animate-delay-500">
+              <label>Work Email Address *</label>
+              <div className="glass-input-wrapper">
                 <input
-                  id="email"
                   name="email"
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@company.com"
                   required
-                  className="input"
                 />
               </div>
+            </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="password">Password *</label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="At least 6 characters"
-                    required
-                    className="input"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="confirmPassword">Confirm Password *</label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Re-enter your password"
-                    required
-                    className="input"
-                  />
+            <div className="form-row animate-element animate-delay-600">
+              <div className="form-field">
+                <label>Password *</label>
+                <div className="glass-input-wrapper">
+                  <div className="password-input-container">
+                    <input
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="At least 6 characters"
+                      required
+                    />
+                    <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary btn-block btn-lg"
-                disabled={loading}
-              >
-                {loading ? 'Creating Enterprise Account...' : 'Create Enterprise Account'}
-              </button>
-            </form>
-
-            <div className="auth-footer">
-              <p>
-                Already have an account?{' '}
-                <Link to="/signin" className="auth-link">Sign In</Link>
-              </p>
-              <p className="auth-divider-text">
-                Are you a student?{' '}
-                <Link to="/signup" className="auth-link">Student Sign Up</Link>
-              </p>
-            </div>
-          </div>
-
-          <div className="auth-illustration auth-illustration-company">
-            <div className="illustration-content">
-              <h2>Find Your Next Hire</h2>
-              <p>Create simulations, evaluate real skills, and build your talent pipeline.</p>
-              <div className="feature-list">
-                <div className="feature-item">
-                  <span className="feature-icon">✓</span>
-                  <span>Create custom job simulations</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">✓</span>
-                  <span>Review candidate submissions</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">✓</span>
-                  <span>Issue certificates to top performers</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">✓</span>
-                  <span>Access a pool of job-ready talent</span>
+              <div className="form-field">
+                <label>Confirm Password *</label>
+                <div className="glass-input-wrapper">
+                  <div className="password-input-container">
+                    <input
+                      name="confirmPassword"
+                      type={showConfirm ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="Re-enter your password"
+                      required
+                    />
+                    <button type="button" className="password-toggle" onClick={() => setShowConfirm(!showConfirm)}>
+                      {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+
+            <button
+              type="submit"
+              className="auth-submit-btn animate-element animate-delay-700"
+              disabled={loading}
+            >
+              {loading ? 'Creating Enterprise Account...' : 'Create Enterprise Account'}
+            </button>
+          </form>
+
+          <p className="auth-footer-text animate-element animate-delay-800">
+            Already have an account? <Link to="/signin">Sign In</Link>
+            {' · '}
+            Not a company? <Link to="/signup">Sign Up Here</Link>
+          </p>
         </div>
-      </div>
-      <Footer />
+      </section>
+
+      {/* Right: Hero Image */}
+      <section className="auth-hero-section">
+        <div
+          className="auth-hero-image animate-slide-right animate-delay-300"
+          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80)' }}
+        ></div>
+      </section>
+    </div>
+    <Footer />
     </>
   );
 }

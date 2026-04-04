@@ -8,7 +8,7 @@ function Blog() {
     {
       id: 1,
       title: 'How Job Simulations Are Changing Career Preparation in Azerbaijan',
-      excerpt: 'Discover how students are gaining real-world experience before entering the job market through interactive simulations.',
+      excerpt: 'Discover how people are gaining real-world experience before entering the job market through interactive simulations.',
       category: 'Career Insights',
       date: 'February 20, 2026',
       author: 'Leyla Mammadova',
@@ -17,9 +17,9 @@ function Blog() {
     },
     {
       id: 2,
-      title: 'Success Story: From Student to Data Analyst at PASHA Bank',
+      title: 'Success Story: From Beginner to Data Analyst at PASHA Bank',
       excerpt: 'Meet Rashad, who landed his dream job after completing our banking simulation and impressing recruiters with his skills.',
-      category: 'Student Stories',
+      category: 'Success Stories',
       date: 'February 15, 2026',
       author: 'Nigar Aliyeva',
       image: '🎓',
@@ -58,7 +58,7 @@ function Blog() {
     {
       id: 6,
       title: 'The Future of Education: Bridging Theory and Practice',
-      excerpt: 'How universities and companies are partnering to provide students with hands-on learning experiences.',
+      excerpt: 'How universities and companies are partnering to provide learners with hands-on learning experiences.',
       category: 'Education',
       date: 'January 25, 2026',
       author: 'Elvin Mammadov',
@@ -67,7 +67,7 @@ function Blog() {
     }
   ];
 
-  const categories = ['All', 'Career Insights', 'Student Stories', 'Career Tips', 'For Companies', 'Education'];
+  const categories = ['All', 'Career Insights', 'Success Stories', 'Career Tips', 'For Companies', 'Education'];
 
   return (
     <div className="blog-page">

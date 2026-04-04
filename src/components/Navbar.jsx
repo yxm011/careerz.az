@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from '../context/LanguageContext';
@@ -10,12 +10,35 @@ function Navbar() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user, profile, signOut } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const role = profile?.role;
   const isCompany = role === 'company';
   const isAdmin = role === 'admin';
-  
+
+  // Scroll detection
+  const onScroll = useCallback(() => {
+    setScrolled(window.scrollY > 10);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [onScroll]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  // Close menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
   const isActive = (path) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
@@ -41,208 +64,140 @@ function Navbar() {
   const getDashboardPath = () => {
     if (isCompany) return '/company';
     if (isAdmin) return '/admin';
-    return '/student/dashboard';
+    return '/dashboard';
   };
 
-  // --- Guest nav (not logged in) ---
-  const renderGuestNav = () => (
-    <>
-      <Link to="/explore" className={`navbar-link ${isActive('/explore') ? 'active' : ''}`}>
-        {t('nav.simulations')}
-      </Link>
-      <Link to="/blog" className={`navbar-link ${isActive('/blog') ? 'active' : ''}`}>
-        {t('nav.blog')}
-      </Link>
-      <Link to="/for-companies" className={`navbar-link ${isActive('/for-companies') ? 'active' : ''}`}>
-        {t('nav.forEnterprise')}
-      </Link>
-      <Link to="/for-educators" className={`navbar-link ${isActive('/for-educators') ? 'active' : ''}`}>
-        {t('nav.forEducators')}
-      </Link>
-    </>
-  );
+  // Build nav links based on role
+  const getNavLinks = () => {
+    if (!user) {
+      return [
+        { label: t('nav.simulations'), to: '/explore' },
+        { label: t('nav.blog'), to: '/blog' },
+        { label: t('nav.forEnterprise'), to: '/for-companies' },
+        { label: t('nav.forEducators'), to: '/for-educators' },
+      ];
+    }
+    if (user && profile && isCompany) {
+      return [
+        { label: 'Dashboard', to: '/company' },
+        { label: 'Simulations', to: '/company/simulations' },
+        { label: 'Submissions', to: '/company/submissions' },
+        { label: 'Talent', to: '/company/talent-pool' },
+        { label: 'Settings', to: '/company/profile' },
+      ];
+    }
+    if (user && profile && !isCompany && !isAdmin) {
+      return [
+        { label: 'Explore', to: '/explore' },
+        { label: 'My Dashboard', to: '/dashboard' },
+        { label: 'Blog', to: '/blog' },
+      ];
+    }
+    if (user && profile && isAdmin) {
+      return [
+        { label: t('nav.simulations'), to: '/explore' },
+        { label: t('nav.blog'), to: '/blog' },
+        { label: t('nav.forEnterprise'), to: '/for-companies' },
+        { label: t('nav.forEducators'), to: '/for-educators' },
+      ];
+    }
+    return [];
+  };
 
-  // --- Student nav ---
-  const renderStudentNav = () => (
-    <>
-      <Link to="/explore" className={`navbar-link ${isActive('/explore') ? 'active' : ''}`}>
-        Explore
-      </Link>
-      <Link to="/student/dashboard" className={`navbar-link ${isActive('/student') ? 'active' : ''}`}>
-        My Dashboard
-      </Link>
-      <Link to="/blog" className={`navbar-link ${isActive('/blog') ? 'active' : ''}`}>
-        Blog
-      </Link>
-    </>
-  );
-
-  // --- Company nav ---
-  const renderCompanyNav = () => (
-    <>
-      <Link to="/company" className={`navbar-link ${isActive('/company') && !isActive('/company/simulations') && !isActive('/company/submissions') && !isActive('/company/talent-pool') ? 'active' : ''}`}>
-        Dashboard
-      </Link>
-      <Link to="/company/simulations" className={`navbar-link ${isActive('/company/simulations') ? 'active' : ''}`}>
-        Simulations
-      </Link>
-      <Link to="/company/submissions" className={`navbar-link ${isActive('/company/submissions') ? 'active' : ''}`}>
-        Submissions
-      </Link>
-      <Link to="/company/talent-pool" className={`navbar-link ${isActive('/company/talent-pool') ? 'active' : ''}`}>
-        Talent
-      </Link>
-      <Link to="/company/profile" className={`navbar-link ${isActive('/company/profile') ? 'active' : ''}`}>
-        Settings
-      </Link>
-    </>
-  );
+  const navLinks = getNavLinks();
 
   return (
-    <nav className={`navbar ${isCompany ? 'navbar--company' : ''}`}>
-      <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          Careerz.az
-        </Link>
-        
-        <div className="navbar-menu">
-          {!user && renderGuestNav()}
-          {user && !profile && null}
-          {user && profile && !isCompany && !isAdmin && renderStudentNav()}
-          {user && profile && isCompany && renderCompanyNav()}
-          {user && profile && isAdmin && renderGuestNav()}
-        </div>
-        
-        <div className="navbar-right">
-          <LanguageSelector />
-          
-          {/* Hamburger menu button for mobile */}
-          <button 
-            className="mobile-menu-button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <span className={`hamburger ${mobileMenuOpen ? 'open' : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-          </button>
+    <header className={`header ${scrolled && !open ? 'header--scrolled' : ''} ${open ? 'header--open' : ''}`}>
+      <nav className={`header-nav ${scrolled ? 'header-nav--compact' : ''}`}>
+        <Link to="/" className="header-logo">Careerz.az</Link>
 
-          <div className="navbar-actions">
+        {/* All desktop nav items in one row */}
+        <div className="header-links">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`header-link ${isActive(link.to) ? 'header-link--active' : ''}`}
+            >
+              {link.label}
+            </Link>
+          ))}
+          {user ? (
+            <>
+              {profile && isCompany && (
+                <Link to="/company/simulations/new" className="header-link">+ New Simulation</Link>
+              )}
+              <Link to={getDashboardPath()} className="header-link">{getUserName()}</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/signin" className="header-link">{t('nav.signIn')}</Link>
+              <Link to="/signup" className="header-link">{t('nav.signUp')}</Link>
+            </>
+          )}
+        </div>
+
+        {/* Language selector — far right */}
+        <div className="header-lang">
+          <LanguageSelector />
+        </div>
+
+        {/* Mobile hamburger */}
+        <button className="header-toggle" onClick={() => setOpen(!open)} aria-label="Toggle menu">
+          <svg
+            className={`header-toggle-icon ${open ? 'header-toggle-icon--open' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 32 32"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              className={`toggle-path-main ${open ? 'toggle-path-main--open' : ''}`}
+              d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22"
+            />
+            <path d="M7 16 27 16" />
+          </svg>
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      <div className={`header-mobile ${open ? 'header-mobile--open' : 'header-mobile--closed'}`}>
+        <div className="header-mobile-inner">
+          <div className="header-mobile-links">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="header-mobile-link"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className="header-mobile-actions">
             {user ? (
               <>
-                {/* Quick-create button for companies */}
                 {profile && isCompany && (
-                  <Link to="/company/simulations/new" className="btn-create-sim">
+                  <Link to="/company/simulations/new" className="header-mobile-btn header-mobile-btn--primary">
                     + New Simulation
                   </Link>
                 )}
-
-                <Link to={getDashboardPath()} className="navbar-user">
-                  {profile && isCompany && <span className="navbar-role-badge navbar-role-badge--company">Enterprise</span>}
-                  {profile && !isCompany && !isAdmin && <span className="navbar-role-badge navbar-role-badge--student">Student</span>}
-                  {getUserName()}
-                </Link>
-                <Link to={getDashboardPath()} className="navbar-profile-mobile">
-                  {profile && isCompany ? 'Panel' : 'Profile'}
+                <Link to={getDashboardPath()} className="header-mobile-btn header-mobile-btn--primary">
+                  Go to Dashboard
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/signin" className="btn-signin">
-                  {t('nav.signIn')}
-                </Link>
-                <Link to="/signup" className="btn-signup">
-                  {t('nav.signUp')}
-                </Link>
+                <Link to="/signin" className="header-mobile-btn header-mobile-btn--outline">{t('nav.signIn')}</Link>
+                <Link to="/signup" className="header-mobile-btn header-mobile-btn--primary">{t('nav.signUp')}</Link>
               </>
             )}
           </div>
         </div>
       </div>
-
-      {/* Mobile menu overlay */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={() => setMobileMenuOpen(false)}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-menu-header">
-              <span className="mobile-menu-title">Menu</span>
-              <button 
-                className="mobile-menu-close"
-                onClick={() => setMobileMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mobile-menu-content">
-              {/* User info section */}
-              {user && profile && (
-                <div className="mobile-menu-user">
-                  {profile && isCompany && <span className="navbar-role-badge navbar-role-badge--company">Enterprise</span>}
-                  {profile && !isCompany && !isAdmin && <span className="navbar-role-badge navbar-role-badge--student">Student</span>}
-                  <span className="mobile-menu-username">{getUserName()}</span>
-                </div>
-              )}
-
-              {/* Navigation links */}
-              <div className="mobile-menu-links">
-                {!user && (
-                  <>
-                    <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>{t('nav.simulations')}</Link>
-                    <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>{t('nav.blog')}</Link>
-                    <Link to="/for-companies" onClick={() => setMobileMenuOpen(false)}>{t('nav.forEnterprise')}</Link>
-                    <Link to="/for-educators" onClick={() => setMobileMenuOpen(false)}>{t('nav.forEducators')}</Link>
-                  </>
-                )}
-
-                {user && profile && !isCompany && !isAdmin && (
-                  <>
-                    <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
-                    <Link to="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>My Dashboard</Link>
-                    <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-                  </>
-                )}
-
-                {user && profile && isCompany && (
-                  <>
-                    <Link to="/company" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-                    <Link to="/company/simulations" onClick={() => setMobileMenuOpen(false)}>Simulations</Link>
-                    <Link to="/company/submissions" onClick={() => setMobileMenuOpen(false)}>Submissions</Link>
-                    <Link to="/company/talent-pool" onClick={() => setMobileMenuOpen(false)}>Talent</Link>
-                    <Link to="/company/profile" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
-                  </>
-                )}
-              </div>
-
-              {/* Auth actions */}
-              <div className="mobile-menu-actions">
-                {!user ? (
-                  <>
-                    <Link to="/signin" className="mobile-menu-btn mobile-menu-btn-signin" onClick={() => setMobileMenuOpen(false)}>
-                      {t('nav.signIn')}
-                    </Link>
-                    <Link to="/signup" className="mobile-menu-btn mobile-menu-btn-signup" onClick={() => setMobileMenuOpen(false)}>
-                      {t('nav.signUp')}
-                    </Link>
-                  </>
-                ) : (
-                  <Link 
-                    to={getDashboardPath()} 
-                    className="mobile-menu-btn mobile-menu-btn-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Go to Dashboard
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
+    </header>
   );
 }
 

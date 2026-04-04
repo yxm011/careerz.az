@@ -49,7 +49,7 @@ export const az = {
     },
 
     benefits: {
-      title: 'Niyə Tələbələr CAREERZ.AZ-ı Seçir',
+      title: 'Niyə İnsanlar CAREERZ.AZ-ı Seçir',
       item1: {
         title: 'Real İş Təcrübəsi',
         description: 'Aparıcı şirkətlərdə faktiki iş vəzifələrini əks etdirən tapşırıqları tamamlayın',
@@ -82,8 +82,8 @@ export const az = {
     },
 
     testimonials: {
-      title: 'Tələbələr Nə Deyir',
-      subtitle: 'Karyeralarını dəyişdirən tələbələrin real hekayələri',
+      title: 'İstifadəçilərimiz Nə Deyir',
+      subtitle: 'Karyeralarını dəyişdirən insanların real hekayələri',
       student1: {
         text: '"Kapital Bank simulyasiyasını tamamladım və bu, bank analitiklərinin əslində nə etdiyini başa düşməyə kömək etdi. 2 həftə ərzində müsahibə aldım!"',
         name: 'Nigar Həsənova',
@@ -103,7 +103,7 @@ export const az = {
 
     statsSection: {
       students: '2,500+',
-      studentsLabel: 'Aktiv Tələbə',
+      studentsLabel: 'Aktiv İstifadəçi',
       studentsDesc: 'Hər gün bacarıqlar qazanır',
       companies: '50+',
       companiesLabel: 'Tərəfdaş Şirkət',
@@ -113,12 +113,12 @@ export const az = {
       simulationsDesc: 'Müxtəlif sənaye sahələrində',
       satisfaction: '95%',
       satisfactionLabel: 'Məmnuniyyət Dərəcəsi',
-      satisfactionDesc: 'Tələbələr platformamızı sevirlər',
+      satisfactionDesc: 'İstifadəçilər platformamızı sevirlər',
     },
 
     cta: {
       title: 'Gələcəyinizi Qurmağa Hazırsınız?',
-      subtitle: 'Azərbaycanın ən yaxşı şirkətləri ilə real iş təcrübəsi qazanan minlərlə tələbəyə qoşulun. İlk simulyasiyanıza bu gün başlayın - tamamilə pulsuz.',
+      subtitle: 'Azərbaycanın ən yaxşı şirkətləri ilə real iş təcrübəsi qazanan minlərlə insana qoşulun. İlk simulyasiyanıza bu gün başlayın - tamamilə pulsuz.',
       startBtn: 'Pulsuz Başla',
       companyBtn: 'Mən Şirkətəm',
     },
@@ -222,10 +222,10 @@ export const az = {
   // Footer
   footer: {
     tagline: 'Azərbaycanda real iş təcrübəsi qazanın',
-    students: 'Tələbələr',
+    users: 'İstifadəçilər',
     exploreSimulations: 'Simulyasiyaları Kəşf et',
     howItWorks: 'Necə İşləyir',
-    studentStories: 'Tələbə Hekayələri',
+    successStories: 'Uğur Hekayələri',
     companies: 'Şirkətlər',
     forEnterprise: 'Müəssisələr üçün',
     createSimulation: 'Simulyasiya Yarat',

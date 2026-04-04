@@ -2,8 +2,6 @@ import { templates, companies } from '../data/templates';
 import { fixedTemplates } from '../data/fixedTemplates';
 import { supabase } from '../lib/supabase';
 
-const STORAGE_VERSION = `v2-${templates.length}-${templates.map(t => t.id).join(',')}`;
-
 const STORAGE_KEYS = {
   SIMULATIONS: 'careerz_simulations',
   SUBMISSIONS: 'careerz_submissions',
@@ -13,33 +11,7 @@ const STORAGE_KEYS = {
   INITIALIZED: 'careerz_initialized'
 };
 
-export const resetStorage = () => {
-  localStorage.removeItem(STORAGE_KEYS.SIMULATIONS);
-  localStorage.removeItem(STORAGE_KEYS.SUBMISSIONS);
-  localStorage.removeItem(STORAGE_KEYS.PROGRESS);
-  localStorage.removeItem(STORAGE_KEYS.INITIALIZED);
-  initializeStorage();
-};
-
-export const initializeStorage = () => {
-  const storedVersion = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
-  if (storedVersion === STORAGE_VERSION) {
-    return;
-  }
-
-  const publishedSimulations = templates.map((template, index) => ({
-    ...template,
-    id: `sim-${index + 1}`,
-    status: 'published',
-    createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    publishedAt: new Date(Date.now() - Math.random() * 20 * 24 * 60 * 60 * 1000).toISOString()
-  }));
-
-  localStorage.setItem(STORAGE_KEYS.SIMULATIONS, JSON.stringify(publishedSimulations));
-  localStorage.setItem(STORAGE_KEYS.SUBMISSIONS, JSON.stringify([]));
-  localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify({}));
-  localStorage.setItem(STORAGE_KEYS.INITIALIZED, STORAGE_VERSION);
-};
+// Demo data initialization removed - using Supabase database only
 
 export const getSimulations = (filters = {}) => {
   const simulations = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIMULATIONS) || '[]');
@@ -235,10 +207,6 @@ export const saveProgress = (simId, studentId, progressData) => {
   return allProgress[progressKey];
 };
 
-export const getCompanyByName = (name) => {
-  return companies.find(c => c.name === name);
-};
-
 export const getCompanyById = (id) => {
   return companies.find(c => c.id === id);
 };
@@ -399,10 +367,6 @@ export const getSubmissionsByCompany = (companyId) => {
       simulationDifficulty: sim?.difficulty
     };
   });
-};
-
-export const getAllCompanies = () => {
-  return companies;
 };
 
 const mapSimulationRow = (row) => ({

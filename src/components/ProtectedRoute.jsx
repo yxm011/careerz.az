@@ -46,7 +46,7 @@ function ProtectedRoute({ children, requiredRole }) {
   if (requiredRole && profile.role !== requiredRole) {
     if (profile.role === 'company') return <Navigate to="/company" replace />;
     if (profile.role === 'admin') return <Navigate to="/admin" replace />;
-    return <Navigate to="/student/dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

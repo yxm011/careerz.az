@@ -15,7 +15,7 @@ function StudentDashboard() {
   });
   const [recentActivity, setRecentActivity] = useState([]);
 
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Student';
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
 
   useEffect(() => {
     if (user) {
@@ -69,7 +69,7 @@ function StudentDashboard() {
     <div className="student-dashboard">
       <section className="student-hero">
         <div className="student-hero-main">
-          <div className="student-hero-badge">Student Workspace</div>
+          <div className="student-hero-badge">My Workspace</div>
           <h1>Welcome back, {firstName}</h1>
           <p className="dashboard-subtitle">Stay on top of your simulations, monitor progress, and keep building career-ready experience.</p>
           <div className="header-actions">
@@ -218,7 +218,7 @@ function StudentDashboard() {
                 </div>
                 <span className="quick-action-arrow">→</span>
               </Link>
-              <Link to="/student/dashboard" className="quick-action-item">
+              <Link to="/dashboard" className="quick-action-item">
                 <div>
                   <strong>Review your dashboard</strong>
                   <span>Track submissions, certificates, and progress</span>
