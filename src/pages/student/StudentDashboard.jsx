@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getSimulationsFromDB, getCompanyById } from '../../services/storage';
+import { getSimulationsFromDB, getCompanyByIdFromDB } from '../../services/storage';
 import { getAllUserProgress } from '../../services/progressService';
 import './StudentDashboard.css';
 
@@ -36,14 +36,12 @@ function StudentDashboard() {
       certificates: 0
     });
 
-    const recent = allProgress
+    const recentRaw = allProgress
       .map(p => {
         const sim = allSims.find(s => s.id === p.simulation_id);
         if (!sim) return null;
-        const company = getCompanyById(sim.companyId);
         return {
           ...sim,
-          company,
           progressRecord: p,
           progressPercent: sim.stages
             ? Math.round((p.current_stage_index / sim.stages.length) * 100)
@@ -52,6 +50,17 @@ function StudentDashboard() {
       })
       .filter(Boolean)
       .slice(0, 5);
+
+    // Fetch company names for recent activity
+    const uniqueCompanyIds = [...new Set(recentRaw.map(s => s.companyId).filter(Boolean))];
+    const companyMap = {};
+    await Promise.all(
+      uniqueCompanyIds.map(async (cid) => {
+        const comp = await getCompanyByIdFromDB(cid);
+        companyMap[cid] = comp?.name || 'Simulation';
+      })
+    );
+    const recent = recentRaw.map(s => ({ ...s, companyName: companyMap[s.companyId] || 'Simulation' }));
 
     setRecentActivity(recent);
   };
@@ -157,7 +166,7 @@ function StudentDashboard() {
                       className="activity-card"
                     >
                       <div className="activity-card-top">
-                        <span className="activity-category">{sim.company?.name || 'Simulation'}</span>
+                        <span className="activity-category">{sim.companyName || 'Simulation'}</span>
                         <span className={`activity-badge ${sim.progressRecord?.completed ? 'completed' : 'in-progress'}`}>
                           {sim.progressRecord?.completed ? '✓ Completed' : sim.difficulty}
                         </span>

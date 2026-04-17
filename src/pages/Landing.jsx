@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useTranslation } from '../context/LanguageContext';
+import TestimonialGallery from '../components/TestimonialGallery';
 import './Landing.css';
 
 function Landing() {
@@ -159,53 +160,7 @@ function Landing() {
         </section>
 
         {/* Testimonials */}
-        <section className="testimonials">
-          <div className="section-header">
-            <h2 className="section-title">{t('landing.testimonials.title')}</h2>
-            <p className="section-subtitle">{t('landing.testimonials.subtitle')}</p>
-          </div>
-          <div className="testimonials-grid">
-            <div className="testimonial-card">
-              <div className="testimonial-stars">⭐⭐⭐⭐⭐</div>
-              <p className="testimonial-text">
-                {t('landing.testimonials.student1.text')}
-              </p>
-              <div className="testimonial-author">
-                <div className="author-avatar">N</div>
-                <div>
-                  <strong>{t('landing.testimonials.student1.name')}</strong>
-                  <span>{t('landing.testimonials.student1.school')}</span>
-                </div>
-              </div>
-            </div>
-            <div className="testimonial-card">
-              <div className="testimonial-stars">⭐⭐⭐⭐⭐</div>
-              <p className="testimonial-text">
-                {t('landing.testimonials.student2.text')}
-              </p>
-              <div className="testimonial-author">
-                <div className="author-avatar">E</div>
-                <div>
-                  <strong>{t('landing.testimonials.student2.name')}</strong>
-                  <span>{t('landing.testimonials.student2.school')}</span>
-                </div>
-              </div>
-            </div>
-            <div className="testimonial-card">
-              <div className="testimonial-stars">⭐⭐⭐⭐⭐</div>
-              <p className="testimonial-text">
-                {t('landing.testimonials.student3.text')}
-              </p>
-              <div className="testimonial-author">
-                <div className="author-avatar">L</div>
-                <div>
-                  <strong>{t('landing.testimonials.student3.name')}</strong>
-                  <span>{t('landing.testimonials.student3.school')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <TestimonialGallery />
 
         {/* Stats Section */}
         <section className="stats-section">

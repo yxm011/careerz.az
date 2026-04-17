@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getSimulationsFromDB, getCompanyById } from '../../services/storage';
+import { getSimulationsFromDB, getCompanyByIdFromDB } from '../../services/storage';
 import { useTranslation } from '../../context/LanguageContext';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
@@ -10,12 +10,24 @@ import './Explore.css';
 function Explore() {
   const { t } = useTranslation();
   const [simulations, setSimulations] = useState([]);
+  const [companyNames, setCompanyNames] = useState({});
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     const loadSimulations = async () => {
       const published = await getSimulationsFromDB({ status: 'published' });
       setSimulations(published);
+
+      // Fetch company names for all unique company IDs
+      const uniqueCompanyIds = [...new Set(published.map(s => s.companyId).filter(Boolean))];
+      const names = {};
+      await Promise.all(
+        uniqueCompanyIds.map(async (id) => {
+          const company = await getCompanyByIdFromDB(id);
+          names[id] = company?.name || null;
+        })
+      );
+      setCompanyNames(names);
     };
 
     loadSimulations();
@@ -64,11 +76,10 @@ function Explore() {
 
         <div className="simulations-grid">
           {filteredSimulations.map(sim => {
-            const company = getCompanyById(sim.companyId);
             return (
               <div key={sim.id} className="simulation-card">
                 <div className="card-header">
-                  <span className="company-name">{company?.name || t('explore.unknownCompany')}</span>
+                  <span className="company-name">{companyNames[sim.companyId] || t('explore.unknownCompany')}</span>
                   <span className={`difficulty-badge ${sim.difficulty?.toLowerCase() || 'beginner'}`}>
                     {sim.difficulty || 'Beginner'}
                   </span>

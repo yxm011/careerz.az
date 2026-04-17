@@ -88,7 +88,7 @@ function Navbar() {
     }
     if (user && profile && !isCompany && !isAdmin) {
       return [
-        { label: 'Explore', to: '/explore' },
+        { label: 'Simulations', to: '/explore' },
         { label: 'My Dashboard', to: '/dashboard' },
         { label: 'Blog', to: '/blog' },
       ];
@@ -127,7 +127,7 @@ function Navbar() {
               {profile && isCompany && (
                 <Link to="/company/simulations/new" className="header-link">+ New Simulation</Link>
               )}
-              <Link to={getDashboardPath()} className="header-link">{getUserName()}</Link>
+              <Link to={getDashboardPath()} className="header-link">My Profile</Link>
             </>
           ) : (
             <>

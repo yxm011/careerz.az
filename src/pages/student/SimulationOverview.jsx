@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getSimulationByIdFromDB, getCompanyById } from '../../services/storage';
+import { getSimulationByIdFromDB, getCompanyByIdFromDB } from '../../services/storage';
 import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -23,7 +23,7 @@ function SimulationOverview() {
       }
       setSimulation(sim);
 
-      const comp = getCompanyById(sim.companyId);
+      const comp = await getCompanyByIdFromDB(sim.companyId);
       setCompany(comp);
     };
 
@@ -64,7 +64,7 @@ function SimulationOverview() {
     {
       id: 3,
       name: 'Leyla A.',
-      role: 'University Student',
+      role: 'University User',
       rating: 4,
       date: '1 month ago',
       comment: 'Very practical and well-structured. Helped me understand if this career path is right for me.'
@@ -256,7 +256,7 @@ function SimulationOverview() {
 
         <div className="overview-cta">
           <h2>Ready to Start?</h2>
-          <p>Join thousands of students gaining real work experience</p>
+          <p>Join thousands of users gaining real work experience</p>
           {!isCompany && (
             <button onClick={handleStartSimulation} className="btn-start-simulation btn-lg">
               {user ? 'Start Simulation Now' : 'Sign Up to Get Started'}

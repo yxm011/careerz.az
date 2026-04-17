@@ -38,7 +38,7 @@ const testimonials = [
 
 function SignUp() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -76,14 +76,19 @@ function SignUp() {
 
     const { error } = await signUp(formData.email, formData.password, {
       full_name: formData.fullName,
-      role: 'student'
+      role: 'user'
     });
 
     if (error) {
-      setError(error.message);
+      const code = error.code || '';
+      if (code === 'auth/email-already-in-use') {
+        setError('An account with this email already exists. Try signing in.');
+      } else {
+        setError(error.message);
+      }
       setLoading(false);
     } else {
-      setConfirmed(true);
+      navigate('/dashboard', { replace: true });
     }
   };
 
@@ -216,7 +221,20 @@ function SignUp() {
             <span>Or continue with</span>
           </div>
 
-          <button className="google-btn animate-element animate-delay-900">
+          <button
+            type="button"
+            className="google-btn animate-element animate-delay-900"
+            onClick={async () => {
+              setError('');
+              setLoading(true);
+              const { error } = await signInWithGoogle('user');
+              if (error) {
+                setError(error.message);
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+          >
             <GoogleIcon />
             Continue with Google
           </button>

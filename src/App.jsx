@@ -51,13 +51,13 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/company/signup" element={<CompanySignUp />} />
           
-          <Route path="/dashboard" element={<ProtectedRoute requiredRole="student"><StudentLayout /></ProtectedRoute>}>
+          <Route path="/dashboard" element={<ProtectedRoute requiredRole="user"><StudentLayout /></ProtectedRoute>}>
             <Route index element={<StudentDashboard />} />
           </Route>
           
           <Route path="/explore" element={<Explore />} />
           <Route path="/sim/:id" element={<SimulationOverview />} />
-          <Route path="/sim/:id/play" element={<ProtectedRoute requiredRole="student"><SimulationPlayer /></ProtectedRoute>} />
+          <Route path="/sim/:id/play" element={<ProtectedRoute requiredRole="user"><SimulationPlayer /></ProtectedRoute>} />
         
         <Route path="/company" element={<ProtectedRoute requiredRole="company"><CompanyLayout /></ProtectedRoute>}>
           <Route index element={<CompanyHome />} />

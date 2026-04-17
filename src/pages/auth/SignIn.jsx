@@ -38,7 +38,7 @@ const testimonials = [
 
 function SignIn() {
   const navigate = useNavigate();
-  const { signIn, user, profile, loading: authLoading } = useAuth();
+  const { signIn, signInWithGoogle, user, profile, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -63,21 +63,17 @@ function SignIn() {
     setError('');
     setLoading(true);
 
-    const timeoutId = setTimeout(() => {
-      setLoading(false);
-      setError('Login is taking too long. Please check your email confirmation or try again.');
-    }, 10000);
-
     try {
       const { error } = await signIn(email, password);
 
-      clearTimeout(timeoutId);
-
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          setError('Please confirm your email address before signing in. Check your inbox for the confirmation link.');
-        } else if (error.message.includes('Invalid login credentials')) {
+        const code = error.code || '';
+        if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
           setError('Invalid email or password. Please try again.');
+        } else if (code === 'auth/too-many-requests') {
+          setError('Too many failed attempts. Please try again later.');
+        } else if (code === 'auth/invalid-email') {
+          setError('Please enter a valid email address.');
         } else {
           setError(error.message);
         }
@@ -85,14 +81,17 @@ function SignIn() {
         return;
       }
 
+      // Auth succeeded — onAuthStateChange will handle redirect.
+      // Safety net: if redirect doesn't happen within 6s, unblock the UI.
       setTimeout(() => {
-        if (loading) {
-          setLoading(false);
-          setError('Login completed but redirect failed. Please refresh the page.');
-        }
-      }, 5000);
+        setLoading((current) => {
+          if (current) {
+            setError('Login succeeded but loading your profile is taking too long. Please refresh the page.');
+          }
+          return false;
+        });
+      }, 6000);
     } catch (err) {
-      clearTimeout(timeoutId);
       setError(err?.message || 'Sign in failed. Please try again.');
       setLoading(false);
     }
@@ -176,7 +175,20 @@ function SignIn() {
             <span>Or continue with</span>
           </div>
 
-          <button className="google-btn animate-element animate-delay-800">
+          <button
+            type="button"
+            className="google-btn animate-element animate-delay-800"
+            onClick={async () => {
+              setError('');
+              setLoading(true);
+              const { error } = await signInWithGoogle();
+              if (error) {
+                setError(error.message);
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+          >
             <GoogleIcon />
             Continue with Google
           </button>

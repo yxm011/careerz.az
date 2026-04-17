@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSubmissionsByCompanyFromDB, getSimulationsFromDB } from '../../services/storage';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import './Company.css';
 
@@ -29,31 +30,23 @@ function TalentPool() {
     const submissions = await getSubmissionsByCompanyFromDB(COMPANY_ID);
     const completedSubmissions = submissions.filter(s => s.status === 'submitted');
 
-    // Try to fetch user profiles from Supabase for contact details
+    // Try to fetch user profiles from Firestore for contact details
     const enriched = await Promise.all(
       completedSubmissions.map(async (sub) => {
         let userProfile = null;
-        if (supabase && sub.studentId) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('full_name, role')
-            .eq('id', sub.studentId)
-            .single();
-          userProfile = data;
-        }
-
-        // Get user email from auth if available
-        let userEmail = null;
-        if (supabase && sub.studentId) {
-          // We store email in user_metadata during signup
-          // For now, use studentId as fallback identifier
-          userEmail = sub.studentId;
+        if (db && sub.studentId) {
+          try {
+            const snap = await getDoc(doc(db, 'profiles', sub.studentId));
+            if (snap.exists()) userProfile = snap.data();
+          } catch (err) {
+            console.error('Error fetching candidate profile:', err);
+          }
         }
 
         return {
           ...sub,
           candidateName: userProfile?.full_name || `Candidate ${sub.studentId?.slice(-6) || 'Unknown'}`,
-          candidateEmail: userEmail,
+          candidateEmail: sub.studentId,
           completedAt: sub.submittedAt,
           answers: sub.submissionData || {}
         };

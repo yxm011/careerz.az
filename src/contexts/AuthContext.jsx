@@ -1,5 +1,15 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { auth, db } from '../lib/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const AuthContext = createContext({});
 
@@ -15,170 +25,185 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const emailRedirectTo = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://careerz.az';
 
-  const fetchProfile = async (userId, retries = 3) => {
-    if (!supabase || !userId) return null;
-    
-    for (let attempt = 0; attempt < retries; attempt++) {
-      try {
-        // Just fetch the profile — DB trigger guarantees it exists with correct role
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
-
-        if (data) {
-          return data;
-        }
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('fetchProfile error:', error);
-        }
-
-        // Profile not found yet - might be trigger delay, retry
-        if (attempt < retries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-          continue;
-        }
-      } catch (err) {
-        console.error('fetchProfile error:', err);
-        if (attempt < retries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-          continue;
-        }
+  const fetchProfile = async (uid) => {
+    if (!db || !uid) return { id: uid, role: 'user' };
+    try {
+      const snap = await getDoc(doc(db, 'profiles', uid));
+      if (snap.exists()) {
+        return { id: uid, ...snap.data() };
       }
+      return { id: uid, role: 'user' };
+    } catch (err) {
+      console.error('fetchProfile error:', err);
+      return { id: uid, role: 'user' };
     }
+  };
 
-    // After all retries, return fallback
-    console.warn('Profile not found after retries for user:', userId);
-    return { id: userId, role: 'student' };
+  const createProfile = async (uid, data) => {
+    if (!db) return;
+    try {
+      await setDoc(doc(db, 'profiles', uid), {
+        ...data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error('createProfile error:', err);
+    }
   };
 
   useEffect(() => {
-    let isMounted = true;
-    const loadingSafetyTimer = setTimeout(() => {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }, 4000);
-
-    if (!supabase) {
+    if (!auth) {
+      // No Firebase — localStorage fallback
       const localUser = localStorage.getItem('demo_user');
       if (localUser) {
         const u = JSON.parse(localUser);
         setUser(u);
-        setProfile({ role: u.user_metadata?.role || 'student', ...u.user_metadata });
+        setProfile({ role: u.user_metadata?.role || 'user', ...u.user_metadata });
       }
       setLoading(false);
-      clearTimeout(loadingSafetyTimer);
-      return () => {
-        isMounted = false;
-        clearTimeout(loadingSafetyTimer);
-      };
+      return;
     }
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      try {
-        if (!isMounted) return;
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const p = await fetchProfile(session.user.id);
-          if (isMounted) setProfile(p);
-        }
-      } catch (err) {
-        console.error('getSession profile error:', err);
-      } finally {
-        if (isMounted) setLoading(false);
-        clearTimeout(loadingSafetyTimer);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Map Firebase user to our app user shape
+        const appUser = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          user_metadata: {
+            full_name: firebaseUser.displayName || '',
+          },
+          created_at: firebaseUser.metadata?.creationTime || new Date().toISOString(),
+        };
+        setUser(appUser);
+        const p = await fetchProfile(firebaseUser.uid);
+        setProfile(p);
+      } else {
+        setUser(null);
+        setProfile(null);
       }
-    }).catch((err) => {
-      console.error('getSession error:', err);
-      if (isMounted) setLoading(false);
-      clearTimeout(loadingSafetyTimer);
+      setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      try {
-        if (!isMounted) return;
-        
-        if (session?.user) {
-          // User logged in - fetch profile BEFORE updating state
-          const p = await fetchProfile(session.user.id);
-          if (isMounted) {
-            setUser(session.user);
-            setProfile(p);
-            setLoading(false);
-          }
-        } else {
-          // User logged out
-          if (isMounted) {
-            setUser(null);
-            setProfile(null);
-            setLoading(false);
-          }
-        }
-      } catch (err) {
-        console.error('onAuthStateChange error:', err);
-        if (isMounted) setLoading(false);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      clearTimeout(loadingSafetyTimer);
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const signUp = async (email, password, metadata = {}) => {
-    if (!supabase) {
+    if (!auth) {
       const demoUser = {
         id: `demo-${Date.now()}`,
         email,
         user_metadata: metadata,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
       localStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
-      setProfile({ role: metadata.role || 'student', ...metadata });
+      setProfile({ role: metadata.role || 'user', ...metadata });
       return { data: { user: demoUser }, error: null };
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      // Set display name
+      if (metadata.full_name) {
+        await updateProfile(cred.user, { displayName: metadata.full_name });
       }
-    });
-    return { data, error };
+      // Create Firestore profile
+      await createProfile(cred.user.uid, {
+        role: metadata.role || 'user',
+        full_name: metadata.full_name || '',
+        company_name: metadata.company_name || '',
+        industry: metadata.industry || '',
+        company_size: metadata.company_size || '',
+        website: metadata.website || '',
+        description: '',
+      });
+      return { data: { user: cred.user }, error: null };
+    } catch (err) {
+      return { data: { user: null }, error: err };
+    }
   };
 
   const signIn = async (email, password) => {
-    if (!supabase) {
+    if (!auth) {
       const demoUser = {
         id: `demo-${Date.now()}`,
         email,
         user_metadata: {},
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       };
       localStorage.setItem('demo_user', JSON.stringify(demoUser));
       setUser(demoUser);
-      setProfile({ role: 'student' });
+      setProfile({ role: 'user' });
       return { data: { user: demoUser }, error: null };
     }
 
-    // Don't manually set state here - let onAuthStateChange handle it
-    // This prevents race conditions and ensures profile is loaded before rendering
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    return { data, error };
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      return { data: { user: cred.user }, error: null };
+    } catch (err) {
+      return { data: { user: null }, error: err };
+    }
+  };
+
+  const signInWithGoogle = async (role = 'user') => {
+    if (!auth) return { data: null, error: new Error('Firebase not configured') };
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+
+      // Build a fallback profile from Google account data
+      const fallbackProfile = {
+        id: cred.user.uid,
+        role,
+        full_name: cred.user.displayName || '',
+      };
+
+      // Try to create/fetch Firestore profile, but don't block login if offline
+      try {
+        if (db) {
+          const existingProfile = await getDoc(doc(db, 'profiles', cred.user.uid));
+          if (!existingProfile.exists()) {
+            await createProfile(cred.user.uid, {
+              role,
+              full_name: cred.user.displayName || '',
+              company_name: '',
+              industry: '',
+              company_size: '',
+              website: '',
+              description: '',
+            });
+            setProfile(fallbackProfile);
+          } else {
+            setProfile({ id: cred.user.uid, ...existingProfile.data() });
+          }
+        }
+      } catch (firestoreErr) {
+        console.warn('Firestore unavailable, using fallback profile:', firestoreErr.message);
+        setProfile(fallbackProfile);
+      }
+
+      // Set user immediately so redirect works
+      const appUser = {
+        id: cred.user.uid,
+        email: cred.user.email,
+        user_metadata: { full_name: cred.user.displayName || '' },
+        created_at: cred.user.metadata?.creationTime || new Date().toISOString(),
+      };
+      setUser(appUser);
+      setLoading(false);
+
+      return { data: { user: cred.user }, error: null };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   };
 
   const signOut = async () => {
-    if (!supabase) {
+    if (!auth) {
       localStorage.removeItem('demo_user');
       setUser(null);
       setProfile(null);
@@ -186,16 +211,12 @@ export const AuthProvider = ({ children }) => {
       return { error: null };
     }
 
-    // Clear local auth state immediately so UI can react without waiting on network
     setUser(null);
     setProfile(null);
     setLoading(false);
 
     try {
-      await Promise.race([
-        supabase.auth.signOut(),
-        new Promise((resolve) => setTimeout(resolve, 1500))
-      ]);
+      await firebaseSignOut(auth);
     } catch (err) {
       console.error('signOut error:', err);
     }
@@ -209,7 +230,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     signUp,
     signIn,
-    signOut
+    signInWithGoogle,
+    signOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

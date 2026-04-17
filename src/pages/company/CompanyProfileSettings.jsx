@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { db } from '../../lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import './Company.css';
 
 function CompanyProfileSettings() {
@@ -40,18 +41,16 @@ function CompanyProfileSettings() {
     e.preventDefault();
     setSaving(true);
     try {
-      if (supabase && profile?.id) {
-        await supabase
-          .from('profiles')
-          .update({
-            company_name: formData.company_name,
-            full_name: formData.full_name,
-            website: formData.website,
-            industry: formData.industry,
-            company_size: formData.company_size,
-            description: formData.description
-          })
-          .eq('id', profile.id);
+      if (db && profile?.id) {
+        await updateDoc(doc(db, 'profiles', profile.id), {
+          company_name: formData.company_name,
+          full_name: formData.full_name,
+          website: formData.website,
+          industry: formData.industry,
+          company_size: formData.company_size,
+          description: formData.description,
+          updated_at: new Date().toISOString(),
+        });
       }
       setSaved(true);
     } catch (err) {

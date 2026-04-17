@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSimulationByIdFromDB, saveSubmissionInDB, getCompanyById, requestCertificate, getCertificateRequest } from '../../services/storage';
+import { getSimulationByIdFromDB, saveSubmissionInDB, getCompanyByIdFromDB, requestCertificate, getCertificateRequest } from '../../services/storage';
 import { loadProgress, saveProgress, markCompleted } from '../../services/progressService';
 import { useAuth } from '../../contexts/AuthContext';
 import BlockRenderer from '../../components/BlockRenderer';
@@ -18,6 +18,7 @@ function SimulationPlayer() {
   const [saving, setSaving] = useState(false);
   const [showTaskComplete, setShowTaskComplete] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [company, setCompany] = useState(null);
   const [certificateRequest, setCertificateRequest] = useState(null);
   const [requestingCertificate, setRequestingCertificate] = useState(false);
 
@@ -28,6 +29,8 @@ function SimulationPlayer() {
         navigate('/explore');
         return;
       }
+      const comp = await getCompanyByIdFromDB(sim.companyId);
+      setCompany(comp);
       setSimulation(sim);
 
       if (user) {
@@ -142,8 +145,7 @@ function SimulationPlayer() {
   };
 
   const handleShareLinkedIn = () => {
-    const company = getCompanyById(simulation.companyId);
-    const shareText = `I just completed the ${simulation.title} simulation by ${company?.name} on CAREERZ.AZ! 🎉`;
+    const shareText = `I just completed the ${simulation.title} simulation by ${company?.name || 'a company'} on CAREERZ.AZ! 🎉`;
     const shareUrl = `${window.location.origin}/sim/${id}`;
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`;
     window.open(linkedInUrl, '_blank');
@@ -169,8 +171,7 @@ function SimulationPlayer() {
   }
 
   if (completed) {
-    const company = getCompanyById(simulation.companyId);
-    const studentId = user?.id || 'student';
+    const studentId = user?.id || 'user';
     return (
       <div className="completion-screen">
         <div className="completion-content">
@@ -228,7 +229,7 @@ function SimulationPlayer() {
                       <div className="certificate-header">Certificate of Completion</div>
                       <div className="certificate-body">
                         <p>This certifies that</p>
-                        <h4>{user?.user_metadata?.full_name || user?.email || 'Student'}</h4>
+                        <h4>{user?.user_metadata?.full_name || user?.email || 'User'}</h4>
                         <p>has successfully completed</p>
                         <h4>{simulation.title}</h4>
                         <p className="certificate-company">at {company?.name}</p>
