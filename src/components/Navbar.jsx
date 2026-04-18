@@ -101,7 +101,11 @@ function Navbar() {
         { label: t('nav.forEducators'), to: '/for-educators' },
       ];
     }
-    return [];
+    // Fallback: user exists but profile not loaded yet
+    return [
+      { label: t('nav.simulations'), to: '/explore' },
+      { label: t('nav.blog'), to: '/blog' },
+    ];
   };
 
   const navLinks = getNavLinks();
@@ -122,9 +126,9 @@ function Navbar() {
               {link.label}
             </Link>
           ))}
-          {user ? (
+          {user && profile ? (
             <>
-              {profile && isCompany && (
+              {isCompany && (
                 <Link to="/company/simulations/new" className="header-link">+ New Simulation</Link>
               )}
               <Link to={getDashboardPath()} className="header-link">My Profile</Link>
@@ -177,9 +181,9 @@ function Navbar() {
             ))}
           </div>
           <div className="header-mobile-actions">
-            {user ? (
+            {user && profile ? (
               <>
-                {profile && isCompany && (
+                {isCompany && (
                   <Link to="/company/simulations/new" className="header-mobile-btn header-mobile-btn--primary">
                     + New Simulation
                   </Link>
