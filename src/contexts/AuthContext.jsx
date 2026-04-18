@@ -109,11 +109,15 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
+      console.log('[SignUp] Creating user account...');
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('[SignUp] User created:', cred.user.uid);
+      
       // Set display name
       if (metadata.full_name) {
         await updateProfile(cred.user, { displayName: metadata.full_name });
       }
+      
       // Create Firestore profile
       const profileData = {
         role: metadata.role || 'user',
@@ -124,7 +128,10 @@ export const AuthProvider = ({ children }) => {
         website: metadata.website || '',
         description: '',
       };
+      
+      console.log('[SignUp] Creating Firestore profile...');
       await createProfile(cred.user.uid, profileData);
+      console.log('[SignUp] Profile created');
       
       // Set user and profile immediately so UI can proceed
       const appUser = {
@@ -137,8 +144,10 @@ export const AuthProvider = ({ children }) => {
       setProfile({ id: cred.user.uid, ...profileData });
       setLoading(false);
       
+      console.log('[SignUp] Success, state updated');
       return { data: { user: cred.user }, error: null };
     } catch (err) {
+      console.error('[SignUp] Error:', err);
       return { data: { user: null }, error: err };
     }
   };
