@@ -9,7 +9,7 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -69,6 +69,7 @@ function Navbar() {
 
   // Build nav links based on role
   const getNavLinks = () => {
+    if (authLoading) return [];
     if (!user) {
       return [
         { label: t('nav.simulations'), to: '/explore' },

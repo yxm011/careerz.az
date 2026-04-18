@@ -68,7 +68,6 @@ export const AuthProvider = ({ children }) => {
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Map Firebase user to our app user shape
         const appUser = {
           id: firebaseUser.uid,
           email: firebaseUser.email,
@@ -78,8 +77,13 @@ export const AuthProvider = ({ children }) => {
           created_at: firebaseUser.metadata?.creationTime || new Date().toISOString(),
         };
         setUser(appUser);
-        const p = await fetchProfile(firebaseUser.uid);
-        setProfile(p);
+        // Only fetch profile if not already set (avoids double fetch after Google sign-in)
+        setProfile((currentProfile) => {
+          if (currentProfile?.id === firebaseUser.uid) return currentProfile;
+          // Fetch async but don't block
+          fetchProfile(firebaseUser.uid).then(setProfile);
+          return currentProfile;
+        });
       } else {
         setUser(null);
         setProfile(null);
