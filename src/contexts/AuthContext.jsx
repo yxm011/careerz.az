@@ -115,7 +115,7 @@ export const AuthProvider = ({ children }) => {
         await updateProfile(cred.user, { displayName: metadata.full_name });
       }
       // Create Firestore profile
-      await createProfile(cred.user.uid, {
+      const profileData = {
         role: metadata.role || 'user',
         full_name: metadata.full_name || '',
         company_name: metadata.company_name || '',
@@ -123,7 +123,20 @@ export const AuthProvider = ({ children }) => {
         company_size: metadata.company_size || '',
         website: metadata.website || '',
         description: '',
-      });
+      };
+      await createProfile(cred.user.uid, profileData);
+      
+      // Set user and profile immediately so UI can proceed
+      const appUser = {
+        id: cred.user.uid,
+        email: cred.user.email,
+        user_metadata: { full_name: metadata.full_name || '' },
+        created_at: cred.user.metadata?.creationTime || new Date().toISOString(),
+      };
+      setUser(appUser);
+      setProfile({ id: cred.user.uid, ...profileData });
+      setLoading(false);
+      
       return { data: { user: cred.user }, error: null };
     } catch (err) {
       return { data: { user: null }, error: err };
