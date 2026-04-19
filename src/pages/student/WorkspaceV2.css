@@ -1,0 +1,221 @@
+@import url('../LandingV2.css');
+
+.workspace-v2 {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* Workspace shell */
+.ws-shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 100vh;
+}
+
+.ws-side {
+  background: #fbfcfd;
+  border-right: 1px solid var(--line);
+  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+}
+
+.ws-main {
+  padding: 32px 40px 80px;
+  max-width: 920px;
+}
+
+/* Step list */
+.step-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.step-list li:hover {
+  background: #f0f3f8;
+}
+
+.step-list li.active {
+  background: #eaf0fa;
+}
+
+.step-list li.done .dotnum {
+  background: var(--success);
+  color: #fff;
+  border-color: var(--success);
+}
+
+.step-list li.active .dotnum {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+
+.step-list .label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.step-list .sublabel {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+/* Progress bar */
+.progress {
+  height: 6px;
+  background: var(--line-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress > div {
+  height: 100%;
+  background: var(--brand);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+/* Brief block */
+.brief {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.brief-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line-2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fbfcfe;
+}
+
+.brief-body {
+  padding: 22px 24px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.brief-body p {
+  margin: 0 0 12px;
+}
+
+.brief-body p:last-child {
+  margin-bottom: 0;
+}
+
+.brief-body strong {
+  color: var(--ink);
+}
+
+/* Answer options */
+.opt {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+
+.opt:hover {
+  border-color: #cfd4de;
+}
+
+.opt.selected {
+  border-color: var(--brand);
+  background: #f3f7fd;
+}
+
+.opt-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid #c6ccd8;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+
+.opt.selected .opt-check {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.opt-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.opt-desc {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  min-height: 160px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fff;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: 2px solid #c8d8f3;
+  border-color: var(--brand);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .ws-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .ws-side {
+    position: relative;
+    height: auto;
+  }
+
+  .ws-main {
+    padding: 24px 20px 60px;
+  }
+
+  .ws-main > div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+}

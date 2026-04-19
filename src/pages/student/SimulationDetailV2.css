@@ -1,0 +1,63 @@
+@import url('../LandingV2.css');
+
+.sim-detail-v2 {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.dotnum {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-3);
+  flex-shrink: 0;
+  margin-top: 1px;
+  background: #fff;
+}
+
+.hr {
+  height: 1px;
+  background: var(--line);
+  width: 100%;
+}
+
+.sq {
+  display: inline-block;
+}
+
+/* Enroll Modal */
+.enroll-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(12,20,36,0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  animation: fadeIn .15s ease;
+}
+
+.enroll-modal.open {
+  display: flex;
+}
+
+.enroll-card {
+  width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  max-width: 90vw;
+}
+
+@media (max-width: 768px) {
+  .grid-12 > div,
+  .grid-12 > aside {
+    grid-column: span 12 !important;
+  }
+}

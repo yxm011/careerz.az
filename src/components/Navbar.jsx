@@ -89,9 +89,9 @@ function Navbar() {
     }
     if (user && profile && !isCompany && !isAdmin) {
       return [
+        { label: 'Dashboard', to: '/dashboard' },
         { label: 'Simulations', to: '/explore' },
-        { label: 'My Dashboard', to: '/dashboard' },
-        { label: 'Blog', to: '/blog' },
+        { label: 'Jobs', to: '/jobs' },
       ];
     }
     if (user && profile && isAdmin) {
@@ -132,7 +132,7 @@ function Navbar() {
               {isCompany && (
                 <Link to="/company/simulations/new" className="header-link">+ New Simulation</Link>
               )}
-              <Link to={getDashboardPath()} className="header-link">My Profile</Link>
+              <button onClick={handleSignOut} className="header-link" style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit', fontWeight: 'inherit', padding: '0.375rem 0.5rem', color: '#4b5563' }}>Sign Out</button>
             </>
           ) : (
             <>
@@ -189,9 +189,9 @@ function Navbar() {
                     + New Simulation
                   </Link>
                 )}
-                <Link to={getDashboardPath()} className="header-mobile-btn header-mobile-btn--primary">
-                  Go to Dashboard
-                </Link>
+                <button onClick={handleSignOut} className="header-mobile-btn header-mobile-btn--outline" style={{ width: '100%' }}>
+                  Sign Out
+                </button>
               </>
             ) : (
               <>

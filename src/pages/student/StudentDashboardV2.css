@@ -1,0 +1,85 @@
+@import url('../LandingV2.css');
+
+.dashboard-v2 {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* Stats */
+.stat {
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.stat .k {
+  font-family: "Instrument Serif", serif;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--brand);
+}
+
+.stat .l {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin-top: 6px;
+}
+
+/* Progress */
+.progress.thin {
+  height: 4px;
+}
+
+/* Employer messages */
+.employer-msg {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.employer-msg:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* Recommended simulations */
+.rec-sim {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+
+.rec-sim:hover {
+  background: var(--chip);
+}
+
+@media (max-width: 1024px) {
+  .grid-12 > div,
+  .grid-12 > aside {
+    grid-column: span 12 !important;
+  }
+
+  .stat {
+    grid-column: span 6 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .stat {
+    grid-column: span 12 !important;
+  }
+
+  .dashboard-v2 .row.between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .dashboard-v2 .row.between > .row {
+    width: 100%;
+  }
+}

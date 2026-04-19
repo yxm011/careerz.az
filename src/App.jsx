@@ -3,18 +3,21 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
 
-import Landing from './pages/Landing';
-import ForCompanies from './pages/ForCompanies';
-import Blog from './pages/Blog';
-import ForEducators from './pages/ForEducators';
+import Landing from './pages/LandingV2';
+import ForCompanies from './pages/ForCompaniesV2';
+import Blog from './pages/BlogV2';
+import ForEducators from './pages/ForEducatorsV2';
 import StudentLayout from './layouts/StudentLayout';
 import CompanyLayout from './layouts/CompanyLayout';
 import AdminLayout from './layouts/AdminLayout';
 
-import Explore from './pages/student/Explore';
+import Explore from './pages/student/ExploreV2';
+import SimulationDetail from './pages/student/SimulationDetailV2';
+import Workspace from './pages/student/WorkspaceV2';
+import Jobs from './pages/student/JobsV2';
 import SimulationPlayer from './pages/student/SimulationPlayer';
 import SimulationOverview from './pages/student/SimulationOverview';
-import StudentDashboard from './pages/student/StudentDashboard';
+import StudentDashboard from './pages/student/StudentDashboardV2';
 
 import CompanyHome from './pages/company/CompanyHome';
 import CompanySimulations from './pages/company/CompanySimulations';
@@ -56,7 +59,9 @@ function App() {
           </Route>
           
           <Route path="/explore" element={<Explore />} />
-          <Route path="/sim/:id" element={<SimulationOverview />} />
+          <Route path="/sim/:id" element={<SimulationDetail />} />
+          <Route path="/workspace/:id" element={<Workspace />} />
+          <Route path="/jobs" element={<ProtectedRoute requiredRole="user"><Jobs /></ProtectedRoute>} />
           <Route path="/sim/:id/play" element={<ProtectedRoute requiredRole="user"><SimulationPlayer /></ProtectedRoute>} />
         
         <Route path="/company" element={<ProtectedRoute requiredRole="company"><CompanyLayout /></ProtectedRoute>}>
