@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { createSimulationFromFixedTemplateInDB, createBlankSimulationInDB } from '../../services/storage';
 import { useAuth } from '../../contexts/AuthContext';
-import { fixedTemplates } from '../../data/fixedTemplates';
+import { fixedTemplates } from '../../data/mockData';
 import './Company.css';
 
 function TemplateSelect() {

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Building, Target, CheckCircle, BarChart3, Users, Filter, Download } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { companies } from '../data/templates';
+import { companies } from '../data/mockData';
 import './ForCompaniesV2.css';
 
 function ForCompaniesV2() {

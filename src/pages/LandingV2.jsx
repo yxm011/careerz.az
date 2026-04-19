@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useTranslation } from '../context/LanguageContext';
-import { companies } from '../data/templates';
+import { companies } from '../data/mockData';
 import './LandingV2.css';
 
 function Landing() {

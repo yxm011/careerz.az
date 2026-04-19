@@ -1,5 +1,4 @@
-import { templates, companies } from '../data/templates';
-import { fixedTemplates } from '../data/fixedTemplates';
+import { templates, companies, fixedTemplates } from '../data/mockData';
 import { db } from '../lib/firebase';
 import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
