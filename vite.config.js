@@ -8,7 +8,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes('firebase') || id.includes('@firebase')) {
+            return 'firebase';
+          }
+          if (id.includes('react-dom') || id.includes('react-router')) {
+            return 'vendor';
+          }
+        },
       },
     },
   },

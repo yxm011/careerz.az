@@ -1,50 +1,58 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
-
-import Landing from './pages/LandingV2';
-import ForCompanies from './pages/ForCompaniesV2';
-import Blog from './pages/BlogV2';
-import ForEducators from './pages/ForEducatorsV2';
-import StudentLayout from './layouts/StudentLayout';
-import CompanyLayout from './layouts/CompanyLayout';
-import AdminLayout from './layouts/AdminLayout';
-
-import Explore from './pages/student/ExploreV2';
-import SimulationDetail from './pages/student/SimulationDetailV2';
-import Workspace from './pages/student/WorkspaceV2';
-import Jobs from './pages/student/JobsV2';
-import SimulationPlayer from './pages/student/SimulationPlayer';
-import SimulationOverview from './pages/student/SimulationOverview';
-import StudentDashboard from './pages/student/StudentDashboardV2';
-
-import CompanyHome from './pages/company/CompanyHome';
-import CompanySimulations from './pages/company/CompanySimulations';
-import CompanySubmissions from './pages/company/CompanySubmissions';
-import CertificateReview from './pages/company/CertificateReview';
-import CompanySubscription from './pages/company/CompanySubscription';
-import TemplateSelect from './pages/company/TemplateSelect';
-import SimulationBuilder from './pages/company/SimulationBuilder';
-import SimulationAnalytics from './pages/company/SimulationAnalytics';
-import TalentPool from './pages/company/TalentPool';
-import CompanyProfileSettings from './pages/company/CompanyProfileSettings';
-
-import AdminHome from './pages/admin/AdminHome';
-import AdminTemplates from './pages/admin/AdminTemplates';
-import AdminReview from './pages/admin/AdminReview';
-
-import SignIn from './pages/auth/SignIn';
-import SignUp from './pages/auth/SignUp';
-import CompanySignUp from './pages/auth/CompanySignUp';
-
 import './App.css';
+
+// Lazy-load all pages so the initial bundle stays small
+const Landing = lazy(() => import('./pages/LandingV2'));
+const ForCompanies = lazy(() => import('./pages/ForCompaniesV2'));
+const Blog = lazy(() => import('./pages/BlogV2'));
+const ForEducators = lazy(() => import('./pages/ForEducatorsV2'));
+const StudentLayout = lazy(() => import('./layouts/StudentLayout'));
+const CompanyLayout = lazy(() => import('./layouts/CompanyLayout'));
+const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
+
+const Explore = lazy(() => import('./pages/student/ExploreV2'));
+const SimulationDetail = lazy(() => import('./pages/student/SimulationDetailV2'));
+const Workspace = lazy(() => import('./pages/student/WorkspaceV2'));
+const Jobs = lazy(() => import('./pages/student/JobsV2'));
+const SimulationPlayer = lazy(() => import('./pages/student/SimulationPlayer'));
+const SimulationOverview = lazy(() => import('./pages/student/SimulationOverview'));
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboardV2'));
+
+const CompanyHome = lazy(() => import('./pages/company/CompanyHome'));
+const CompanySimulations = lazy(() => import('./pages/company/CompanySimulations'));
+const CompanySubmissions = lazy(() => import('./pages/company/CompanySubmissions'));
+const CertificateReview = lazy(() => import('./pages/company/CertificateReview'));
+const CompanySubscription = lazy(() => import('./pages/company/CompanySubscription'));
+const TemplateSelect = lazy(() => import('./pages/company/TemplateSelect'));
+const SimulationBuilder = lazy(() => import('./pages/company/SimulationBuilder'));
+const SimulationAnalytics = lazy(() => import('./pages/company/SimulationAnalytics'));
+const TalentPool = lazy(() => import('./pages/company/TalentPool'));
+const CompanyProfileSettings = lazy(() => import('./pages/company/CompanyProfileSettings'));
+
+const AdminHome = lazy(() => import('./pages/admin/AdminHome'));
+const AdminTemplates = lazy(() => import('./pages/admin/AdminTemplates'));
+const AdminReview = lazy(() => import('./pages/admin/AdminReview'));
+
+const SignIn = lazy(() => import('./pages/auth/SignIn'));
+const SignUp = lazy(() => import('./pages/auth/SignUp'));
+const CompanySignUp = lazy(() => import('./pages/auth/CompanySignUp'));
+
+const PageLoader = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#64748b' }}>
+    Loading...
+  </div>
+);
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <ScrollToTop />
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/for-companies" element={<ForCompanies />} />
@@ -83,6 +91,7 @@ function App() {
           <Route path="review" element={<AdminReview />} />
         </Route>
         </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
   );
