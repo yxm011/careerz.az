@@ -21,6 +21,25 @@ export const useAuth = () => {
   return context;
 };
 
+const PROFILE_CACHE_KEY = 'careerz_profile_cache';
+
+const getCachedProfile = () => {
+  try {
+    const cached = localStorage.getItem(PROFILE_CACHE_KEY);
+    return cached ? JSON.parse(cached) : null;
+  } catch { return null; }
+};
+
+const setCachedProfile = (profile) => {
+  try {
+    if (profile) {
+      localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile));
+    } else {
+      localStorage.removeItem(PROFILE_CACHE_KEY);
+    }
+  } catch {}
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -77,18 +96,30 @@ export const AuthProvider = ({ children }) => {
           created_at: firebaseUser.metadata?.creationTime || new Date().toISOString(),
         };
         setUser(appUser);
-        // Only fetch profile if not already set (avoids double fetch after Google sign-in)
-        setProfile((currentProfile) => {
-          if (currentProfile?.id === firebaseUser.uid) return currentProfile;
-          // Fetch async but don't block
-          fetchProfile(firebaseUser.uid).then(setProfile);
-          return currentProfile;
-        });
+
+        // Use cached profile immediately so UI doesn't wait
+        const cached = getCachedProfile();
+        if (cached && cached.id === firebaseUser.uid) {
+          setProfile(cached);
+          setLoading(false);
+          // Refresh in background
+          fetchProfile(firebaseUser.uid).then((fresh) => {
+            setProfile(fresh);
+            setCachedProfile(fresh);
+          });
+        } else {
+          // No cache — fetch and cache
+          const fresh = await fetchProfile(firebaseUser.uid);
+          setProfile(fresh);
+          setCachedProfile(fresh);
+          setLoading(false);
+        }
       } else {
         setUser(null);
         setProfile(null);
+        setCachedProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -141,7 +172,9 @@ export const AuthProvider = ({ children }) => {
         created_at: cred.user.metadata?.creationTime || new Date().toISOString(),
       };
       setUser(appUser);
-      setProfile({ id: cred.user.uid, ...profileData });
+      const fullProfile = { id: cred.user.uid, ...profileData };
+      setProfile(fullProfile);
+      setCachedProfile(fullProfile);
       setLoading(false);
       
       console.log('[SignUp] Success, state updated');
@@ -203,13 +236,17 @@ export const AuthProvider = ({ children }) => {
               description: '',
             });
             setProfile(fallbackProfile);
+            setCachedProfile(fallbackProfile);
           } else {
-            setProfile({ id: cred.user.uid, ...existingProfile.data() });
+            const p = { id: cred.user.uid, ...existingProfile.data() };
+            setProfile(p);
+            setCachedProfile(p);
           }
         }
       } catch (firestoreErr) {
         console.warn('Firestore unavailable, using fallback profile:', firestoreErr.message);
         setProfile(fallbackProfile);
+        setCachedProfile(fallbackProfile);
       }
 
       // Set user immediately so redirect works
@@ -239,6 +276,7 @@ export const AuthProvider = ({ children }) => {
 
     setUser(null);
     setProfile(null);
+    setCachedProfile(null);
     setLoading(false);
 
     try {

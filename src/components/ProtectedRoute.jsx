@@ -6,10 +6,10 @@ function ProtectedRoute({ children, requiredRole }) {
   const { user, profile, loading } = useAuth();
   const [timedOut, setTimedOut] = useState(false);
 
-  // Safety net: if still loading after 4s, proceed anyway
+  // Safety net: if still loading after 2s, proceed anyway
   useEffect(() => {
     if (!loading) return;
-    const t = setTimeout(() => setTimedOut(true), 4000);
+    const t = setTimeout(() => setTimedOut(true), 2000);
     return () => clearTimeout(t);
   }, [loading]);
 
