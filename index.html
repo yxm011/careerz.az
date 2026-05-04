@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Careerz.az - Job Simulations Platform</title>
+
+    <!-- Preconnect to Firebase so DNS/TLS happens early -->
+    <link rel="preconnect" href="https://firebaseinstallations.googleapis.com" />
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://www.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
       (function() {
         var redirect = sessionStorage.redirect;
@@ -21,7 +29,14 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="splash" style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;color:#64748b;font-size:1.1rem;letter-spacing:0.02em">
+        <div style="text-align:center">
+          <div style="font-size:1.5rem;font-weight:700;color:#667eea;margin-bottom:8px">Careerz.az</div>
+          Loading…
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

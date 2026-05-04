@@ -26,3 +26,10 @@ if (hasConfig) {
 }
 
 export { app, auth, db };
+
+// Pre-warm Firestore connection in background
+if (db) {
+  import('firebase/firestore').then(({ enableNetwork }) => {
+    enableNetwork(db).catch(() => {});
+  });
+}
