@@ -201,6 +201,33 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      // Set user immediately
+      const appUser = {
+        id: cred.user.uid,
+        email: cred.user.email,
+        user_metadata: { full_name: cred.user.displayName || '' },
+        created_at: cred.user.metadata?.creationTime || new Date().toISOString(),
+      };
+      setUser(appUser);
+
+      // Use cached profile or fetch fresh
+      const cached = getCachedProfile();
+      if (cached && cached.id === cred.user.uid) {
+        setProfile(cached);
+        setLoading(false);
+        // Refresh in background
+        fetchProfile(cred.user.uid).then((fresh) => {
+          setProfile(fresh);
+          setCachedProfile(fresh);
+        });
+      } else {
+        const fresh = await fetchProfile(cred.user.uid);
+        setProfile(fresh);
+        setCachedProfile(fresh);
+        setLoading(false);
+      }
+
       return { data: { user: cred.user }, error: null };
     } catch (err) {
       return { data: { user: null }, error: err };
