@@ -46,16 +46,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (uid) => {
-    if (!db || !uid) return { id: uid, role: 'user' };
+    if (!db || !uid) return null;
     try {
       const snap = await getDoc(doc(db, 'profiles', uid));
       if (snap.exists()) {
         return { id: uid, ...snap.data() };
       }
-      return { id: uid, role: 'user' };
+      return null;
     } catch (err) {
       console.error('fetchProfile error:', err);
-      return { id: uid, role: 'user' };
+      return null;
     }
   };
 
@@ -102,16 +102,24 @@ export const AuthProvider = ({ children }) => {
         if (cached && cached.id === firebaseUser.uid) {
           setProfile(cached);
           setLoading(false);
-          // Refresh in background
+          // Refresh in background — only update if Firestore has real data
           fetchProfile(firebaseUser.uid).then((fresh) => {
-            setProfile(fresh);
-            setCachedProfile(fresh);
+            if (fresh) {
+              setProfile(fresh);
+              setCachedProfile(fresh);
+            }
           });
         } else {
-          // No cache — fetch and cache
+          // No cache — fetch from Firestore
           const fresh = await fetchProfile(firebaseUser.uid);
-          setProfile(fresh);
-          setCachedProfile(fresh);
+          if (fresh) {
+            setProfile(fresh);
+            setCachedProfile(fresh);
+          } else {
+            // No Firestore doc yet (new user) — use basic fallback
+            const fallback = { id: firebaseUser.uid, role: 'user' };
+            setProfile(fallback);
+          }
           setLoading(false);
         }
       } else {
@@ -160,9 +168,10 @@ export const AuthProvider = ({ children }) => {
         description: '',
       };
       
-      console.log('[SignUp] Creating Firestore profile...');
-      await createProfile(cred.user.uid, profileData);
-      console.log('[SignUp] Profile created');
+      // Create Firestore profile in background (don't block UI)
+      createProfile(cred.user.uid, profileData)
+        .then(() => console.log('[SignUp] Profile saved to Firestore'))
+        .catch((err) => console.warn('[SignUp] Firestore write failed, will retry:', err.message));
       
       // Set user and profile immediately so UI can proceed
       const appUser = {
@@ -216,15 +225,21 @@ export const AuthProvider = ({ children }) => {
       if (cached && cached.id === cred.user.uid) {
         setProfile(cached);
         setLoading(false);
-        // Refresh in background
+        // Refresh in background — only update if Firestore has real data
         fetchProfile(cred.user.uid).then((fresh) => {
-          setProfile(fresh);
-          setCachedProfile(fresh);
+          if (fresh) {
+            setProfile(fresh);
+            setCachedProfile(fresh);
+          }
         });
       } else {
         const fresh = await fetchProfile(cred.user.uid);
-        setProfile(fresh);
-        setCachedProfile(fresh);
+        if (fresh) {
+          setProfile(fresh);
+          setCachedProfile(fresh);
+        } else {
+          setProfile({ id: cred.user.uid, role: 'user' });
+        }
         setLoading(false);
       }
 

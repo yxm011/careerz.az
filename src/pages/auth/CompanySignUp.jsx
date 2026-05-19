@@ -87,7 +87,8 @@ function CompanySignUp() {
       setError(error.message);
       setLoading(false);
     } else {
-      setConfirmed(true);
+      setLoading(false);
+      navigate('/company', { replace: true });
     }
   };
 
